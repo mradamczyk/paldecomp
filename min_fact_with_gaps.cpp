@@ -88,7 +88,8 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLen
         for (const triple &g : G) {
             std::tie(i, d, k) = g;
 
-            int nk = (maxPos - i + 1) / d;
+            int nk = (maxPos - i) / d + (i <= maxPos);
+            //std::cerr << "maxPos: " << maxPos << ", nk: " << nk << std::endl;
             if (k > 1 && nk > 0)
                 G1.push_back(make_tuple(i, d, nk));
             if (k == 1 && i <= maxPos)
@@ -114,6 +115,15 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLen
 int minPalFactN2(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
     int n = t.size() - 1;
     std::vector<int> PL(n+1, 2*n);
+
+    std::vector<std::vector<int>> MG(n+1), MG1(n+1);
+    for (int j = 0; j <= n; ++j) {
+        MG[j].resize(maxGaps+1);
+        MG1[j].resize(maxGaps+1);
+        for (int q = 0; q <= maxGaps; ++q)
+            MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
+    }
+
     std::vector<int> P[2];
 
     PL[0] = 0;
@@ -130,9 +140,21 @@ int minPalFactN2(const std::string &t, std::function<char(char)> f, int minLengt
         if (t[j] == f(t[j]))
             P[j&1].push_back(j);
 
-        for (int i: P[j&1])
+        for (int i: P[j&1]) {
             if (j - i + 1>= minLength)
                 PL[j] = std::min(PL[j], PL[i-1] + 1);
+        }
+
+        for (int q = 0; q <= maxGaps; ++q) {
+            MG[j][q] = MG1[j-1][q] + 1;
+            MG1[j][q] = MG1[j-1][q] + 1;
+            for (int i: P[j&1])
+                if (j - i + 1>= minLength) {
+                    MG[j][q] = min(MG[j][q], MG[i-1][q]);
+                    if (q > 0)
+                        MG1[j][q] = min(MG1[j][q], MG[j][q-1]);
+                }
+        }
     }
     return PL[n] > n ? -1 : PL[n];
 }
@@ -147,11 +169,9 @@ int main() {
     s.append(t);
 
     for (int i : {1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-        std::cout << i << ": " << minPalFactN2(s, standardPalindrom, i, 10) << " " << minPalFactFICI(s, standardPalindrom, i, 10) << std::endl;
+//        std::cout << i << ": " << minPalFactN2(s, standardPalindrom, i, 10) << " " << minPalFactFICI(s, standardPalindrom, i, 10) << std::endl;
+        std::cout << i << ": " << minPalFactN2(s, dnaComplementaryPalindrom, i, 10) << " " << minPalFactFICI(s, dnaComplementaryPalindrom, i, 10) << std::endl;
     }
-    // std::cout << minPalFactFICI(s, standardPalindrom) << std::endl;
-    // std::cout << minPalFactN2(s, dnaComplementaryPalindrom) << std::endl;
-    // std::cout << minPalFactFICI(s, dnaComplementaryPalindrom) << std::endl;
 
     return 0;
 }
