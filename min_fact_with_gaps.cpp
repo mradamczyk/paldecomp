@@ -1,9 +1,11 @@
 // Implementations of https://arxiv.org/pdf/1403.2431.pdf
 
+#include<functional>
 #include<iostream>
 #include<vector>
 #include<queue>
 #include<string>
+#include<tuple>
 
 inline char standardPalindrom(const char &t) { return t; }
 inline char dnaComplementaryPalindrom(const char &t) {
