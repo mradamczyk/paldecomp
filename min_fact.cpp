@@ -138,7 +138,6 @@ int main(int argc, char **argv) {
 	}
 
 
-	
 	std::function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
 	std::function<int(std::string, std::function<char(char)>)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
 

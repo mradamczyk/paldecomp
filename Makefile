@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-std=c++11 -Wall -Wpedantic
 LDFLAGS=
-SOURCES=gusfield.cpp min_fact.cpp min_fact_with_gaps.cpp
-EXECUTABLE=gusfield min_fact min_fact_with_gaps
+SOURCES=gusfield.cpp min_fact.cpp min_fact_trimmed.cpp min_fact_with_gaps.cpp
+EXECUTABLE=gusfield min_fact min_fact_trimmed min_fact_with_gaps
 
 all: $(EXECUTABLE)
 	
