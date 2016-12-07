@@ -1,11 +1,10 @@
-// Implementations of https://arxiv.org/pdf/1403.2431.pdf
-
 #include<functional>
 #include<iostream>
 #include<vector>
 #include<queue>
 #include<string>
 #include<tuple>
+#include<unistd.h>
 
 inline char standardPalindrom(const char &t) { return t; }
 inline char dnaComplementaryPalindrom(const char &t) {
@@ -25,7 +24,8 @@ using std::max;
 using std::tie;
 using std::make_tuple;
 
-int minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+    std::cerr << "FICI(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
 
     std::vector<int> PL(n + 1, 2*n);
@@ -34,6 +34,17 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLen
     std::queue<triple> G2;
     int i, d, k;
     int i1, d1, k1;
+
+    std::vector<std::vector<int>> MG(n+1), MG1(n+1), GPL2(maxGaps+1);
+    for (int j = 0; j <= maxGaps; ++j)
+        GPL2[j].resize(n+1);
+
+    for (int j = 0; j <= n; ++j) {
+        MG[j].resize(maxGaps+1);
+        MG1[j].resize(maxGaps+1);
+        for (int q = 0; q <= maxGaps; ++q)
+            MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
+    }
 
     PL[0] = 0;
     G.clear();
@@ -103,20 +114,37 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLen
             std::tie(i, d, k) = g;
 
             r = i + (k-1) * d;
-            int m = PL[r-1] + 1;
-            if (k > 1)
-                m = min(m, GPL[i - d]);
+            int mn = PL[r-1] + 1;
+            if (k > 1 && d <= i)
+                mn = min(mn, GPL[i - d]);
             if (d <= i)
-                GPL[i-d] = m;
-            PL[j] = min(PL[j], m);
+                GPL[i - d] = mn;
+            PL[j] = min(PL[j], mn);
+        }
+
+        MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
+        for (int q = 1; q <= maxGaps; ++q) {
+            MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
+            MG[j][q] = MG1[j][q];
+            for (const triple &g : G1) {
+                std::tie(i, d, k) = g;
+
+                r = i + (k-1) * d;
+                int mn = MG[r-1][q];
+                if (k > 1 && d <= i)
+                    mn = min(mn, GPL2[q][i - d]);
+                if (d <= i)
+                    GPL2[q][i-d] = mn;
+                MG[j][q] = min(MG[j][q], mn);
+            }
         }
     }
-    return PL[n] > n ? -1 : PL[n];
+    return MG[n];
 }
 
-int minPalFactN2(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+    std::cerr << "BRUTE(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
-    std::vector<int> PL(n+1, 2*n);
 
     std::vector<std::vector<int>> MG(n+1), MG1(n+1);
     for (int j = 0; j <= n; ++j) {
@@ -126,6 +154,7 @@ int minPalFactN2(const std::string &t, std::function<char(char)> f, int minLengt
             MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
     }
 
+    std::vector<int> PL(n+1, 2*n);
     std::vector<int> P[2];
 
     PL[0] = 0;
@@ -147,33 +176,46 @@ int minPalFactN2(const std::string &t, std::function<char(char)> f, int minLengt
                 PL[j] = std::min(PL[j], PL[i-1] + 1);
         }
 
-        for (int q = 0; q <= maxGaps; ++q) {
-            MG[j][q] = MG1[j-1][q] + 1;
-            MG1[j][q] = MG1[j-1][q] + 1;
+        MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
+        for (int q = 1; q <= maxGaps; ++q) {
+            MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
+            MG[j][q] = MG1[j][q];
             for (int i: P[j&1])
-                if (j - i + 1>= minLength) {
+                if (j - i + 1 >= minLength)
                     MG[j][q] = min(MG[j][q], MG[i-1][q]);
-                    if (q > 0)
-                        MG1[j][q] = min(MG1[j][q], MG[j][q-1]);
-                }
         }
     }
-    return PL[n] > n ? -1 : PL[n];
+    return MG[n];
 }
 
-
-int main() {
-    std::string t;
-    std::cin >> t;
-    for (auto &c: t) c = toupper(c);
-
-    std::string s = "#";
-    s.append(t);
-
-    for (int i : {1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-//        std::cout << i << ": " << minPalFactN2(s, standardPalindrom, i, 10) << " " << minPalFactFICI(s, standardPalindrom, i, 10) << std::endl;
-        std::cout << i << ": " << minPalFactN2(s, dnaComplementaryPalindrom, i, 10) << " " << minPalFactFICI(s, dnaComplementaryPalindrom, i, 10) << std::endl;
+int main(int argc, char **argv) {
+    int opt, brute, dna;
+    brute = dna = 0;
+    while ((opt = getopt(argc,argv,"bd")) != EOF) {
+        switch(opt) {
+            case 'b': brute = 1; break;
+            case 'd': dna = 1; break;
+            case '?': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]"); break;
+        }
     }
 
+    int MAX_GAPS = 4;
+
+    std::function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
+    std::function<std::vector<int>(std::string, std::function<char(char)>, int, int)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
+
+    std::string t;
+    while (std::cin >> t) {
+        for (auto &c: t) c = toupper(c);
+
+        std::string s = "#";
+        s.append(t);
+
+        for (int i = 1; i <= 5; ++i) {
+            for (int k: minPalFact(s, f, i, MAX_GAPS))
+                std::cout << k << " ";
+            std::cout << std::endl;
+        }
+    }
     return 0;
 }
