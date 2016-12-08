@@ -11,7 +11,18 @@ $(EXECUTABLE): $(SOURCES)
 
 gen-test:
 	mkdir -p dna/
-	for i in $$(seq 1 12); do echo $$i; python gen_dna.py $$i > dna/$$i.in; done
+	for i in $$(seq 1 10); do echo $$i; python gen_dna.py $$i > dna/$$i.in; done
+	python gen_random_dna.py 1000000 30 > dna/random.in
+
+s-test: gen-test
+	./min_fact_with_gaps -L 4 -G 10 -b < dna/random.in > brute.out 2>/dev/null
+	./min_fact_with_gaps -L 4 -G 10 < dna/random.in > fici.out 2>/dev/null
+	diff fici.out brute.out
+
+d-test: gen-test
+	./min_fact_with_gaps -d -L 4 -G 10 -b < dna/random.in > brute.out 2>/dev/null
+	./min_fact_with_gaps -d -L 4 -G 10 < dna/random.in > fici.out 2>/dev/null
+	diff fici.out brute.out
 
 clean:
-	rm -f *~ $(EXECUTABLE) dna/*
+	rm -f *~ $(EXECUTABLE) dna/* fici.out brute.out

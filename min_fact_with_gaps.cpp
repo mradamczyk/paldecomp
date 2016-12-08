@@ -189,17 +189,17 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
 }
 
 int main(int argc, char **argv) {
-    int opt, brute, dna;
+    int opt, brute, dna, minLength = 1, maxGaps;
     brute = dna = 0;
-    while ((opt = getopt(argc,argv,"bd")) != EOF) {
+    while ((opt = getopt(argc,argv,"bdL:G:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
-            case '?': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]"); break;
+            case 'L': minLength = atoi(optarg); break;
+            case 'G': maxGaps = atoi(optarg); break;
+            case '?': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]"); break;
         }
     }
-
-    int MAX_GAPS = 4;
 
     std::function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
     std::function<std::vector<int>(std::string, std::function<char(char)>, int, int)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
@@ -211,11 +211,9 @@ int main(int argc, char **argv) {
         std::string s = "#";
         s.append(t);
 
-        for (int i = 1; i <= 5; ++i) {
-            for (int k: minPalFact(s, f, i, MAX_GAPS))
-                std::cout << k << " ";
-            std::cout << std::endl;
-        }
+        for (int k: minPalFact(s, f, minLength, maxGaps))
+            std::cout << k << " ";
+        std::cout << std::endl;
     }
     return 0;
 }
