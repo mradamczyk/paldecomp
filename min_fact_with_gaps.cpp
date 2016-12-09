@@ -27,6 +27,7 @@ using std::make_tuple;
 std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
     std::cerr << "FICI(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
+    int INFTY = 2*n;
 
     std::vector<int> PL(n + 1, 2*n);
     std::vector<int> GPL(n + 1, 2*n);
@@ -42,8 +43,10 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
     for (int j = 0; j <= n; ++j) {
         MG[j].resize(maxGaps+1);
         MG1[j].resize(maxGaps+1);
-        for (int q = 0; q <= maxGaps; ++q)
-            MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
+        for (int q = 0; q <= maxGaps; ++q) {
+            MG[j][q] = (j==0) ? 0 : INFTY;
+            MG1[j][q] = INFTY;
+        }
     }
 
     PL[0] = 0;
@@ -122,9 +125,10 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
             PL[j] = min(PL[j], mn);
         }
 
-        MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
-        for (int q = 1; q <= maxGaps; ++q) {
-            MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
+        //MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
+        for (int q = 0; q <= maxGaps; ++q) {
+            if (q > 0)
+                MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
             MG[j][q] = MG1[j][q];
             for (const triple &g : G1) {
                 std::tie(i, d, k) = g;
