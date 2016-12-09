@@ -23,14 +23,16 @@ using std::min;
 using std::max;
 using std::tie;
 using std::make_tuple;
+using std::pair;
+using std::make_pair;
+
+int print = 0;
 
 std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
     std::cerr << "FICI(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
     int INFTY = 2*n;
 
-    std::vector<int> PL(n + 1, 2*n);
-    std::vector<int> GPL(n + 1, 2*n);
     std::vector<triple> G, G1;
     std::queue<triple> G2;
     int i, d, k;
@@ -49,7 +51,6 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
         }
     }
 
-    PL[0] = 0;
     G.clear();
 
     for (int j = 1; j <= n; ++j) {
@@ -113,19 +114,6 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
         }
         //std::cerr << "G1: "; for (const triple &g: G1) { std::tie(i, d, k) = g; std::cerr << '(' << i << ',' << d << ',' << k << "), "; } std::cerr << std::endl;
 
-        for (const triple &g : G1) {
-            std::tie(i, d, k) = g;
-
-            r = i + (k-1) * d;
-            int mn = PL[r-1] + 1;
-            if (k > 1 && d <= i)
-                mn = min(mn, GPL[i - d]);
-            if (d <= i)
-                GPL[i - d] = mn;
-            PL[j] = min(PL[j], mn);
-        }
-
-        //MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
         for (int q = 0; q <= maxGaps; ++q) {
             if (q > 0)
                 MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
@@ -149,19 +137,29 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
 std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
     std::cerr << "BRUTE(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
+    int INFTY = 2 * n;
 
     std::vector<std::vector<int>> MG(n+1), MG1(n+1);
+    std::vector<std::vector<std::pair<int, int>>> D(n+1), D1(n+1);
     for (int j = 0; j <= n; ++j) {
         MG[j].resize(maxGaps+1);
         MG1[j].resize(maxGaps+1);
-        for (int q = 0; q <= maxGaps; ++q)
-            MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
+        D[j].resize(maxGaps+1);
+        D1[j].resize(maxGaps+1);
+        for (int q = 0; q <= maxGaps; ++q) {
+            if (j == 0) {
+                MG[j][q] = 0;
+                D[j][q] = make_pair(0,0);
+            } else {
+                MG[j][q] = INFTY;
+                D[j][q] = make_pair(j, q);
+            }
+            MG1[j][q] = INFTY;
+            D1[j][q] = make_pair(j, q);
+        }
     }
 
-    std::vector<int> PL(n+1, 2*n);
     std::vector<int> P[2];
-
-    PL[0] = 0;
     P[0].clear();
     for (int j = 1; j <= n; ++j) {
         P[j&1].clear();
@@ -175,33 +173,59 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
         if (t[j] == f(t[j]))
             P[j&1].push_back(j);
 
-        for (int i: P[j&1]) {
-            if (j - i + 1>= minLength)
-                PL[j] = std::min(PL[j], PL[i-1] + 1);
-        }
-
-        MG[j][0] = PL[j] > n ? 2*n : 0; // infty or 0
-        for (int q = 1; q <= maxGaps; ++q) {
-            MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
+        for (int q = 0; q <= maxGaps; ++q) {
+            if (q > 0) {
+                if (MG1[j-1][q] <= MG[j-1][q-1]) {
+                    MG1[j][q] = MG1[j-1][q] + 1;
+                    D1[j][q] = D1[j-1][q];
+                } else {
+                    MG1[j][q] = MG[j-1][q-1] + 1;
+                    D1[j][q] = make_pair(j-1, q-1);
+                }
+            }
             MG[j][q] = MG1[j][q];
+            D[j][q] = D1[j][q];
             for (int i: P[j&1])
                 if (j - i + 1 >= minLength)
-                    MG[j][q] = min(MG[j][q], MG[i-1][q]);
+                    if (MG[i-1][q] < MG[j][q]) {
+                        MG[j][q] = MG[i-1][q];
+                        D[j][q] = make_pair(i-1, q);
+                    }
         }
     }
+    if (print) {
+        int prevj = n, prevq = maxGaps;
+        int j, q;
+        j = D[prevj][prevq].first, q = D[prevj][prevq].second;
+        std::vector<int> rev;
+        while (prevj != j || prevq != q || (j != 0 && q != 0)) {
+            rev.push_back(prevj);
+            prevj = j, prevq = q;
+            j = D[prevj][prevq].first, q = D[prevj][prevq].second;
+        }
+        rev.push_back(0);
+        std::reverse(std::begin(rev), std::end(rev));
+
+        for (int i = 0; i < rev.size() - 1; ++i) {
+            std::cout << t.substr(rev[i]+1, rev[i+1]-rev[i]) << " ";
+        }
+        std::cout << std::endl;
+    }
+
     return MG[n];
 }
 
 int main(int argc, char **argv) {
     int opt, brute, dna, minLength = 1, maxGaps;
     brute = dna = 0;
-    while ((opt = getopt(argc,argv,"bdL:G:")) != EOF) {
+    while ((opt = getopt(argc,argv,"hbdpL:G:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
+            case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
             case 'G': maxGaps = atoi(optarg); break;
-            case '?': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]"); break;
+            case 'h': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition (works only with -b)\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n"); return 0;
         }
     }
 
