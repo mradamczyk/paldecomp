@@ -1,3 +1,4 @@
+#include<algorithm>
 #include<functional>
 #include<iostream>
 #include<vector>
@@ -163,7 +164,7 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
     P[0].clear();
     for (int j = 1; j <= n; ++j) {
         P[j&1].clear();
-        for (int i: P[1-j&1])
+        for (int i: P[1-(j&1)])
             if (i > 1 && t[i-1] == f(t[j]))
                 P[j&1].push_back(i-1);
 
@@ -206,7 +207,7 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
         rev.push_back(0);
         std::reverse(std::begin(rev), std::end(rev));
 
-        for (int i = 0; i < rev.size() - 1; ++i) {
+        for (uint i = 0; i < rev.size() - 1; ++i) {
             std::cout << t.substr(rev[i]+1, rev[i+1]-rev[i]) << " ";
         }
         std::cout << std::endl;

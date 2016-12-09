@@ -109,7 +109,7 @@ int minPalFactN2(const std::string &t, std::function<char(char)> f) {
 	P[0].clear();
 	for (int j = 1; j <= n; ++j) {
 		P[j&1].clear();
-		for (int i: P[1-j&1])
+		for (int i: P[1-(j&1)])
 			if (i > 1 && t[i-1] == f(t[j]))
 				P[j&1].push_back(i-1);
 

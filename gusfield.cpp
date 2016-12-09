@@ -51,8 +51,8 @@ public:
     // TODO: implement sth better here
     // LCE - brute
     int LCE(int i, int j) {
-        int k = 0, n = this->t.size();
-        while (i <= n && j < this->s.size() && this->s[i] == this->s[j])
+        int k = 0, n = this->t.size(), N = this->s.size();
+        while (i <= n && j < N && this->s[i] == this->s[j])
             ++i, ++j, ++k;
         return k;
     }
