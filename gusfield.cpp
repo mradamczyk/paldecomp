@@ -97,15 +97,12 @@ public:
     vector< pair<int, int> > allMaxPalHam(int g) {
         int n = this->t.size() - 1;
         vector< pair<int, int> > P;
-        // TODO: verify
-        int dEven, dOdd;
+        int dPal;
         for (int i = 1; i <= n; ++i) {
-            dEven = maxPalHam(i, i+1, g);
-            dOdd = maxPalHam(i, i, g);
-            if (dOdd > dEven)
-                P.push_back(make_pair(i-dOdd+1, i+dOdd-1));
-            else
-                P.push_back(make_pair(i-dEven+1, i+dEven));
+            for (int k = 0; k < 2 && i + k <= n; ++k) {
+                dPal = maxPalHam(i, i+k, g);
+                P.push_back(make_pair(i-dPal+1, i+k+dPal-1));
+            }
         }
         return P;
     }
@@ -200,10 +197,24 @@ int main() {
         std::cout << i << "#: " << Q.maxPal(i, i+1) << " " << Q.maxPal(i, i) << std::endl;
         std::cout << i << "$: " << Q.LCEvenPalindrom(i) << " " << Q.LCOddPalindrom(i) << std::endl;
     }
+
+    std::string s("#");
+    s.append(t);
     for (int d = 0; d < 4; ++d) {
         std::cout << d << "-palindromes" << std::endl;
         for (int i = 1; i <= n; ++i)
-            std::cout << i << ": " << Q.maxPalHam(i, i+1, d) << " " << Q.maxPalHam(i, i, d) << std::endl;
+            for (int k=0; k < 2 && i+k <= n; ++k) {
+                int ret = Q.maxPalHam(i, i+k, d);
+                int a = i - ret + 1, b = i + k + ret - 1;
+                std::cout << i+i+k << ": " << ret << " " << a << ", " << b;
+                if (a <= b)
+                    std::cout << " # " << s.substr(a, b-a+1);
+                std::cout << std::endl;
+            }
     }
+
+    vector<pair<int,int>> pals = Q.allMaxPalHam(1);
+    for (pair<int, int> p: pals)
+        std::cout << p.first << ", " << p.second << std::endl;
     return 0;
 }
