@@ -31,7 +31,6 @@ private:
     std::string s;
     std::string t;
     std::function<char(char)> f;
-    int N;
 
 public:
     LCEStructure(std::string t, std::function<char(char)> f) {
@@ -44,8 +43,6 @@ public:
         for (auto &c: t) c = f(c);
         std::reverse(std::begin(t), std::end(t));
         this->s.append(t);
-        std::cout << "string s: " << this->s << std::endl;
-        this->N = this->s.size() - 1;
     }
 
     // TODO: implement sth better here
@@ -57,24 +54,13 @@ public:
         return k;
     }
 
-    inline int LCEvenPalindrom(int i) {
-        return LCE(i+1, this->N-i+1);
-    }
-
-    inline int LCOddPalindrom(int i) {
-        return LCE(i, this->N-i+1);
-    }
-
-    // set j=i for odd-palindromes and j=i+1 for even palindromes
-    inline int maxPal(int i, int j) {
-        return LCE(j, this->N-i+1);
-    }
-
-    int LCPal(int i, int j) {
+    int LGPal(int i, int j) {
         int k = 0, n = this->t.size();
         while (i > 0 && j <= n && this->f(this->t[i]) == this->t[j]) --i, ++j, ++k;
         return k;
     }
+
+    // TODO: implement LGPal using LCE
 
     // Finding maximal g-palindrome centered between i and j under Hamming dist
     // For an even-length g-palindrome we set j=i+1
@@ -84,7 +70,7 @@ public:
         int n = this->t.size() - 1;
         for (int s = 0; s <= g; ++s) {
             if (a == 0 || b == n+1) return i - a;
-            d = LCPal(a, b);
+            d = LGPal(a, b);
             a -= d;
             b += d;
             if (a == 0 || b == n+1) return i - a;
@@ -97,11 +83,12 @@ public:
     vector< pair<int, int> > allMaxPalHam(int g) {
         int n = this->t.size() - 1;
         vector< pair<int, int> > P;
-        int dPal;
+
+        int d;
         for (int i = 1; i <= n; ++i) {
             for (int k = 0; k < 2 && i + k <= n; ++k) {
-                dPal = maxPalHam(i, i+k, g);
-                P.push_back(make_pair(i-dPal+1, i+k+dPal-1));
+                d = maxPalHam(i, i+k, g);
+                P.push_back(make_pair(i-d+1, i+k+d-1));
             }
         }
         return P;
@@ -113,40 +100,29 @@ public:
     vector< pair<int, int> > allMaxPalEdit(int g) {
         int n = this->t.size() - 1;
         vector< pair<int, int> > P;
-        vector< pair<int, int> > buckets(n+1, make_pair(0,-1));
+        vector< pair<int, int> > buckets(2*n+1, make_pair(0,-1));
 
-        int dEven, dOdd;
-        for (int i = 1; i <= this->N; ++i) {
-            dEven = maxPal(i, i+1);
-            dOdd = maxPal(i, i);
-            if (dOdd > dEven)
-                P.push_back(make_pair(i-dOdd+1, i+dOdd-1));
-            else
-                P.push_back(make_pair(i-dEven+1, i+dEven));
-        }
+        // all max palindromes without errors
+        P = allMaxPalHam(0);
 
-        int d, i, j, i1, j1, mid;
-        pair<int, int> temp;
+        int d, i, j, i1, j1;
         for (int k = 1; k <= g; ++k) {
             // try to extend palindromes
             for (auto &p: P) {
                 i = p.first, j = p.second;
                 for (const pair<int,int> &c: vector< pair<int, int> >{{1,0}, {0,1}, {1,1}}) {
-                    d = LCPal(i-1-c.first, j+1+c.second);
-                    i1 = i - d - c.second, j1 = j + d + c.second;
-                    temp = make_pair(i1, j1);
-                    mid = (i1+j1) / 2;
-                    if (i1 >= 1 && j1 <= this->N) {
-                         if (dist(buckets[mid]) < dist(temp))
-                            buckets[mid] = temp;
-                    }
+                    d = LGPal(i-1-c.first, j+1+c.second);
+                    i1 = i - c.first - d, j1 = j + c.second + d;
+                    addPalToBucketIfLonger(make_pair(i1, j1), buckets);
                 }
-                // TODO: add border reductions!!!
+                // Border reductions
+                if (i == 1)  addPalToBucketIfLonger(make_pair(1, j-1), buckets);
+                if (j == n)  addPalToBucketIfLonger(make_pair(i+1, n), buckets);
             }
 
             P.clear();
             // sort by center positions
-            for (int i = 1; i <= this->N; ++i) {
+            for (int i = 2; i <= 2*n; ++i) {
                 if (dist(buckets[i]) > 0) {
                     P.push_back(buckets[i]);
                     buckets[i] = make_pair(0, -1);
@@ -156,7 +132,41 @@ public:
         return P;
     }
 
+    inline std::string getPal(const pair<int, int> &t) {
+        if (t.first > t.second) return "";
+        return this->t.substr(t.first, t.second-t.first+1);
+    }
+
+    void addPalToBucketIfLonger(const pair<int, int> &temp, vector<pair<int, int>> &buckets) {
+        int mid = temp.first + temp.second;
+        if (temp.first >= 1 && temp.second <= this->t.size() - 1) {
+             if (dist(buckets[mid]) < dist(temp))
+                buckets[mid] = temp;
+    }
+}
+
 };
+
+int main() {
+    std::string t;
+    std::cin >> t;
+    for (auto &c: t) c = toupper(c);
+    LCEStructure Q(t, standardPalindrom);
+
+    vector<pair<int,int>> pals;
+
+    std::cout << "allMaxPalHam(1)" << std::endl;
+    pals = Q.allMaxPalHam(1);
+    for (pair<int, int> p: pals)
+        std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
+
+    std::cout << "allMaxPalEdit(1)" << std::endl;
+    pals = Q.allMaxPalEdit(1);
+    for (pair<int, int> p: pals)
+        std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
+    return 0;
+}
+
 
 int maxPalFact(const string &t, const vector< pair<int, int> > &Pal, int minLength, int maxGaps) {
     int n = t.size() - 1;
@@ -186,35 +196,3 @@ int maxPalFact(const string &t, const vector< pair<int, int> > &Pal, int minLeng
     return MG[n][maxGaps];
 }
 
-int main() {
-    std::string t;
-    std::cin >> t;
-    for (auto &c: t) c = toupper(c);
-
-    LCEStructure Q(t, standardPalindrom);
-    int n = t.size();
-    for (int i = 1; i <= n; ++i) {
-        std::cout << i << "#: " << Q.maxPal(i, i+1) << " " << Q.maxPal(i, i) << std::endl;
-        std::cout << i << "$: " << Q.LCEvenPalindrom(i) << " " << Q.LCOddPalindrom(i) << std::endl;
-    }
-
-    std::string s("#");
-    s.append(t);
-    for (int d = 0; d < 4; ++d) {
-        std::cout << d << "-palindromes" << std::endl;
-        for (int i = 1; i <= n; ++i)
-            for (int k=0; k < 2 && i+k <= n; ++k) {
-                int ret = Q.maxPalHam(i, i+k, d);
-                int a = i - ret + 1, b = i + k + ret - 1;
-                std::cout << i+i+k << ": " << ret << " " << a << ", " << b;
-                if (a <= b)
-                    std::cout << " # " << s.substr(a, b-a+1);
-                std::cout << std::endl;
-            }
-    }
-
-    vector<pair<int,int>> pals = Q.allMaxPalHam(1);
-    for (pair<int, int> p: pals)
-        std::cout << p.first << ", " << p.second << std::endl;
-    return 0;
-}
