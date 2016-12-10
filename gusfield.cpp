@@ -22,6 +22,8 @@ using std::pair;
 using std::vector;
 using std::string;
 
+int print = 0;
+
 inline int dist(const pair<int, int> &p) {
     return p.second - p.first + 1;
 }
@@ -142,9 +144,84 @@ public:
         if (temp.first >= 1 && temp.second <= this->t.size() - 1) {
              if (dist(buckets[mid]) < dist(temp))
                 buckets[mid] = temp;
+        }
     }
-}
 
+    vector<int> maxPalFactWithErrosGaps(const string &errorsMetric, int errorsAllowed, int minLength, int maxGaps) {
+        std::vector<pair<int, int>> Pal;
+        if (errorsMetric == "edit") { // Edit distance
+            Pal = allMaxPalEdit(errorsAllowed);
+        } else { // Hamming dist
+            Pal = allMaxPalHam(errorsAllowed);
+        }
+
+        int n = this->t.size() - 1;
+        int INFTY = 2 * n;
+
+        std::vector<std::vector<int>> MG(n+1), MG1(n+1);
+        std::vector<std::vector<std::pair<int, int>>> D(n+1), D1(n+1);
+        for (int j = 0; j <= n; ++j) {
+            MG[j].resize(maxGaps+1);
+            MG1[j].resize(maxGaps+1);
+            D[j].resize(maxGaps+1);
+            D1[j].resize(maxGaps+1);
+            for (int q = 0; q <= maxGaps; ++q) {
+                if (j == 0) {
+                    MG[j][q] = 0;
+                    D[j][q] = make_pair(0,0);
+                } else {
+                    MG[j][q] = INFTY;
+                    D[j][q] = make_pair(j, q);
+                }
+                MG1[j][q] = INFTY;
+                D1[j][q] = make_pair(j, q);
+            }
+        }
+
+        vector<vector<int> > P(n+1);
+        for (auto &p: Pal) P[p.second].push_back(p.first);
+
+        for (int j = 1; j <= n; ++j) {
+            for (int q = 0; q <= maxGaps; ++q) {
+                if (q > 0) {
+                    if (MG1[j-1][q] <= MG[j-1][q-1]) {
+                        MG1[j][q] = MG1[j-1][q] + 1;
+                        D1[j][q] = D1[j-1][q];
+                    } else {
+                        MG1[j][q] = MG[j-1][q-1] + 1;
+                        D1[j][q] = make_pair(j-1, q-1);
+                    }
+                }
+                MG[j][q] = MG1[j][q];
+                D[j][q] = D1[j][q];
+                for (int i: P[j])
+                    if (j - i + 1 >= minLength)
+                        if (MG[i-1][q] < MG[j][q]) {
+                            MG[j][q] = MG[i-1][q];
+                            D[j][q] = make_pair(i-1, q);
+                        }
+            }
+        }
+        if (print) {
+            int prevj = n, prevq = maxGaps;
+            int j, q;
+            j = D[prevj][prevq].first, q = D[prevj][prevq].second;
+            std::vector<int> rev;
+            while (prevj != j || prevq != q || (j != 0 && q != 0)) {
+                rev.push_back(prevj);
+                prevj = j, prevq = q;
+                j = D[prevj][prevq].first, q = D[prevj][prevq].second;
+            }
+            rev.push_back(0);
+            std::reverse(std::begin(rev), std::end(rev));
+
+            for (uint i = 0; i < rev.size() - 1; ++i) {
+                std::cout << t.substr(rev[i]+1, rev[i+1]-rev[i]) << " ";
+            }
+            std::cout << std::endl;
+        }
+        return MG[n];
+    }
 };
 
 int main() {
@@ -153,46 +230,10 @@ int main() {
     for (auto &c: t) c = toupper(c);
     LCEStructure Q(t, standardPalindrom);
 
-    vector<pair<int,int>> pals;
-
-    std::cout << "allMaxPalHam(1)" << std::endl;
-    pals = Q.allMaxPalHam(1);
-    for (pair<int, int> p: pals)
+    std::string errorsMetric = "edit"; // or "ham"
+    int errorsAllowed = 1;
+    for (pair<int, int> p: errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed))
         std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
 
-    std::cout << "allMaxPalEdit(1)" << std::endl;
-    pals = Q.allMaxPalEdit(1);
-    for (pair<int, int> p: pals)
-        std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
     return 0;
 }
-
-
-int maxPalFact(const string &t, const vector< pair<int, int> > &Pal, int minLength, int maxGaps) {
-    int n = t.size() - 1;
-    std::vector<std::vector<int>> MG(n+1), MG1(n+1);
-    for (int j = 0; j <= n; ++j) {
-        MG[j].resize(maxGaps+1);
-        MG1[j].resize(maxGaps+1);
-        for (int q = 0; q <= maxGaps; ++q)
-            MG[j][q] = MG1[j][q] = (j == 0 ? 0 : 2*n);
-    }
-
-    vector<vector<int> > P(n+1);
-    for (auto &p: Pal) P[p.second].push_back(p.first);
-
-    for (int j = 1; j <= n; ++j) {
-        for (int q = 0; q <= maxGaps; ++q) {
-            MG1[j][q] = MG1[j-1][q] + 1;
-            if (q > 0)
-                MG1[j][q] = min(MG1[j][q], MG[j-1][q-1]+1);
-
-            MG[j][q] = MG1[j][q];
-            for (int i: P[j])
-                if (j - i + 1>= minLength)
-                    MG[j][q] = min(MG[j][q], MG[i-1][q]);
-        }
-    }
-    return MG[n][maxGaps];
-}
-
