@@ -142,9 +142,9 @@ public:
     void addPalToBucketIfLonger(const pair<int, int> &temp, vector<pair<int, int>> &buckets) {
         int mid = temp.first + temp.second;
 	int n = this->x.size() - 1;
-        if (temp.first >= 1 && temp.second <= n) {
-             if (dist(buckets[mid]) < dist(temp))
-                buckets[mid] = temp;
+        if (temp.first >= 1 && temp.second <= n && mid <= 2*n && dist(buckets[mid]) < dist(temp)) {
+		std::cout << "2n = " << 2*n << ", i = " << mid << " " << temp.first << " " << temp.second << std::endl;
+        	buckets[mid] = temp;
         }
     }
 
