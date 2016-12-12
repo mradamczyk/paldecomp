@@ -1,12 +1,17 @@
 CC=g++
 CFLAGS=-std=c++11 -Wall -Wpedantic
 LDFLAGS=
-SOURCES=gusfield.cpp min_fact.cpp min_fact_trimmed.cpp min_fact_with_gaps.cpp
-EXECUTABLE=gusfield min_fact min_fact_trimmed min_fact_with_gaps
+EXECUTABLES=min_fact min_fact_with_gaps max_pal_decomp_gaps_errors
 
-all: $(EXECUTABLE)
+all: $(EXECUTABLES)
 	
-$(EXECUTABLE): $(SOURCES)
+min_fact: min_fact.cpp
+	$(CC) $(CFLAGS) $@.cpp -o $@
+
+min_fact_with_gaps: min_fact_with_gaps.cpp
+	$(CC) $(CFLAGS) $@.cpp -o $@
+
+max_pal_decomp_gaps_errors: max_pal_decomp_gaps_errors.cpp
 	$(CC) $(CFLAGS) $@.cpp -o $@
 
 gen-test:
@@ -25,4 +30,4 @@ d-test: gen-test
 	diff fici.out brute.out
 
 clean:
-	rm -f *~ $(EXECUTABLE) dna/* fici.out brute.out
+	rm -f *~ $(EXECUTABLES) dna/* fici.out brute.out

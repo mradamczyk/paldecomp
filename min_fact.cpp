@@ -24,14 +24,17 @@ using std::make_tuple;
 using std::get;
 using std::min;
 using std::tie;
+using std::string;
+using std::vector;
+using std::function;
 
-int minPalFactFICI(const std::string &t, std::function<char(char)> f) {
+int minPalFactFICI(const string &t, function<char(char)> f) {
 	std::cerr << "FICI"  << std::endl;
 	int n = t.size() - 1;
 
-	std::vector<int> PL(n + 1, 2*n);
-	std::vector<int> GPL(n + 1, 2*n);
-	std::vector<triple> G, G1;
+	vector<int> PL(n + 1, 2*n);
+	vector<int> GPL(n + 1, 2*n);
+	vector<triple> G, G1;
 	std::queue<triple> G2;
 	int i, d, k;
 	int i1, d1, k1;
@@ -42,14 +45,14 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f) {
 	for (int j = 1; j <= n; ++j) {
 		G1.clear();
 		for (const triple &g : G) {
-			std::tie(i, d, k) = g;
+			tie(i, d, k) = g;
 			if (i > 1 && t[i-1] == f(t[j]))
 				G1.push_back(make_tuple(i-1,d,k));
 		}
 
 		int r = -j; // i-r big enough to act as inf
 		for (const triple &g : G1) {
-			std::tie(i, d, k) = g;
+			tie(i, d, k) = g;
 			if (i - r != d) {
 				G2.push(make_tuple(i,i-r,1));
 				if (k > 1)
@@ -68,10 +71,10 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f) {
 
 		G.clear();
 		if (!G2.empty()) {
-			std::tie(i1, d1, k1) = G2.front();
+			tie(i1, d1, k1) = G2.front();
 			G2.pop();
 			while (!G2.empty()) {
-				std::tie(i,d,k) = G2.front();
+				tie(i,d,k) = G2.front();
 				G2.pop();
 				if (d1 == d)
 					k1 += k;
@@ -84,7 +87,7 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f) {
 		}
 
 		for (const triple &g : G) {
-			std::tie(i, d, k) = g;
+			tie(i, d, k) = g;
 
 			r = i + (k-1) * d;
 			int m = PL[r-1] + 1;
@@ -98,12 +101,12 @@ int minPalFactFICI(const std::string &t, std::function<char(char)> f) {
 	return PL[n] > n ? -1 : PL[n];
 }
 
-int minPalFactN2(const std::string &t, std::function<char(char)> f) {
+int minPalFactN2(const string &t, function<char(char)> f) {
 	std::cerr << "BRUTE"  << std::endl;
 
 	int n = t.size() - 1;
-	std::vector<int> PL(n+1, 2*n);
-	std::vector<int> P[2];
+	vector<int> PL(n+1, 2*n);
+	vector<int> P[2];
 
 	PL[0] = 0;
 	P[0].clear();
@@ -120,7 +123,7 @@ int minPalFactN2(const std::string &t, std::function<char(char)> f) {
 			P[j&1].push_back(j);
 
 		for (int i: P[j&1])
-			PL[j] = std::min(PL[j], PL[i-1] + 1);
+			PL[j] = min(PL[j], PL[i-1] + 1);
 	}
 	return PL[n] > n ? -1 : PL[n];
 }
@@ -138,14 +141,14 @@ int main(int argc, char **argv) {
 	}
 
 
-	std::function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
-	std::function<int(std::string, std::function<char(char)>)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
+	function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
+	function<int(string, function<char(char)>)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
 
-	std::string t;
+	string t;
 	while (std::cin >> t) {
 		for (auto &c: t) c = toupper(c);
 
-		std::string s = "#";
+		string s = "#";
 		s.append(t);
 	
 		std::cout << minPalFact(s, f) << std::endl;
