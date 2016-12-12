@@ -132,11 +132,11 @@ int minPalFactN2(const string &t, function<char(char)> f) {
 int main(int argc, char **argv) {
     int opt, brute, dna;
     brute = dna = 0;
+    fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]");
     while ((opt = getopt(argc,argv,"bd")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
-            case '?': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]"); break;
         }
     }
 

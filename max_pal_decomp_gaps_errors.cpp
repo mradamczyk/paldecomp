@@ -4,6 +4,7 @@
 #include<vector>
 #include<queue>
 #include<string>
+#include<unistd.h>
 
 inline char standardPalindrom(const char &t) { return t; }
 inline char dnaComplementaryPalindrom(const char &t) {
@@ -39,7 +40,7 @@ class LCEStructure {
             this->f = f;
 
             // x = #t
-            // y = x + $ + f(x^R)
+            // y = x + f(x^R)
             this->y = "#";
             this->y.append(t);
             this->x = string(this->y);
@@ -52,7 +53,7 @@ class LCEStructure {
         // LCE - brute
         int LCE(int i, int j) {
             int k = 0, n = this->x.size(), N = this->y.size();
-            while (i <= n && j < N && this->y[i] == this->y[j]) // TODO: pewnie i<=n niepotrzebne i moze jakis +-1 na j
+            while (i <= n && j < N && this->y[i] == this->y[j])
                 ++i, ++j, ++k;
             return k;
         }
@@ -143,7 +144,6 @@ class LCEStructure {
             int mid = temp.first + temp.second;
             int n = this->x.size() - 1;
             if (temp.first >= 1 && temp.second <= n && mid <= 2*n && dist(buckets[mid]) < dist(temp)) {
-                std::cout << "2n = " << 2*n << ", i = " << mid << " " << temp.first << " " << temp.second << std::endl;
                 buckets[mid] = temp;
             }
         }
@@ -203,6 +203,7 @@ class LCEStructure {
                             }
                 }
             }
+
             if (print) {
                 int prevj = n, prevq = maxGaps;
                 int j, q;
@@ -225,16 +226,36 @@ class LCEStructure {
         }
 };
 
-int main() {
-    string t;
-    std::cin >> t;
-    for (auto &c: t) c = toupper(c);
-    LCEStructure Q(t, standardPalindrom);
+int main(int argc, char **argv) {
+    int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGaps = 0;
     string errorsMetric = "edit"; // or "ham"
-    int errorsAllowed = 1;
-    vector<pair<int, int> > pals = errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed);
-    for (pair<int, int> p: pals)
-        std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
+    fprintf(stderr, "usuage is \n -h : for running with Hamming distance [default: edit distance]\n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n -E x: set number of allowed errors to X [default: 0]\n");
+    while ((opt = getopt(argc,argv,"hdpL:G:E:")) != EOF) {
+        switch(opt) {
+            case 'h': errorsMetric = "ham"; break;
+            case 'd': dna = 1; break;
+            case 'p': print = 1; break;
+            case 'L': minLength = atoi(optarg); break;
+            case 'G': maxGaps = atoi(optarg); break;
+	    case 'E': errorsAllowed = atoi(optarg); break;
+        }
+    }
+
+    function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
+
+    string t;
+    while (std::cin >> t) {
+        for (auto &c: t) c = toupper(c);
+    	LCEStructure Q(t, f);
+    	vector<pair<int, int> > pals = errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed);
+	std::cerr << "maximal " << errorsAllowed << "-palindromes:" << std::endl;
+    	for (pair<int, int> p: pals)
+        	std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
+	std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrom length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
+        for (int k: Q.maxPalFactWithErrosGaps(errorsMetric, errorsAllowed, minLength, maxGaps))
+            std::cout << (k > int(t.size()) ? -1 : k) << " ";
+        std::cout << std::endl;
+    }
 
     return 0;
 }

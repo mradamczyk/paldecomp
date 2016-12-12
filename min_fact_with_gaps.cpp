@@ -26,20 +26,23 @@ using std::tie;
 using std::make_tuple;
 using std::pair;
 using std::make_pair;
+using std::string;
+using std::vector;
+using std::function;
 
 int print = 0;
 
-std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLength, int maxGaps) {
     std::cerr << "FICI(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
     int INFTY = 2*n;
 
-    std::vector<triple> G, G1;
+    vector<triple> G, G1;
     std::queue<triple> G2;
     int i, d, k;
     int i1, d1, k1;
 
-    std::vector<std::vector<int>> MG(n+1), MG1(n+1), GPL2(maxGaps+1);
+    vector<vector<int>> MG(n+1), MG1(n+1), GPL2(maxGaps+1);
     for (int j = 0; j <= maxGaps; ++j)
         GPL2[j].resize(n+1);
 
@@ -135,13 +138,13 @@ std::vector<int> minPalFactFICI(const std::string &t, std::function<char(char)> 
     return MG[n];
 }
 
-std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f, int minLength, int maxGaps) {
+vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength, int maxGaps) {
     std::cerr << "BRUTE(" << minLength <<", " << maxGaps << ")" << std::endl;
     int n = t.size() - 1;
     int INFTY = 2 * n;
 
-    std::vector<std::vector<int>> MG(n+1), MG1(n+1);
-    std::vector<std::vector<std::pair<int, int>>> D(n+1), D1(n+1);
+    vector<vector<int>> MG(n+1), MG1(n+1);
+    vector<vector<std::pair<int, int>>> D(n+1), D1(n+1);
     for (int j = 0; j <= n; ++j) {
         MG[j].resize(maxGaps+1);
         MG1[j].resize(maxGaps+1);
@@ -160,7 +163,7 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
         }
     }
 
-    std::vector<int> P[2];
+    vector<int> P[2];
     P[0].clear();
     for (int j = 1; j <= n; ++j) {
         P[j&1].clear();
@@ -194,11 +197,13 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
                     }
         }
     }
-    if (print) {
+if (print && MG[n][maxGaps] > n)
+		std::cout << "NOT POSSIBLE" << std::endl;
+else if (print) {
         int prevj = n, prevq = maxGaps;
         int j, q;
         j = D[prevj][prevq].first, q = D[prevj][prevq].second;
-        std::vector<int> rev;
+        vector<int> rev;
         while (prevj != j || prevq != q || (j != 0 && q != 0)) {
             rev.push_back(prevj);
             prevj = j, prevq = q;
@@ -217,31 +222,31 @@ std::vector<int> minPalFactN2(const std::string &t, std::function<char(char)> f,
 }
 
 int main(int argc, char **argv) {
-    int opt, brute, dna, minLength = 1, maxGaps;
+    int opt, brute, dna, minLength = 1, maxGaps = 0;
     brute = dna = 0;
-    while ((opt = getopt(argc,argv,"hbdpL:G:")) != EOF) {
+    fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition (works only with -b)\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n");
+    while ((opt = getopt(argc,argv,"bdpL:G:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
             case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
             case 'G': maxGaps = atoi(optarg); break;
-            case 'h': fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition (works only with -b)\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n"); return 0;
         }
     }
 
-    std::function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
-    std::function<std::vector<int>(std::string, std::function<char(char)>, int, int)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
+    function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
+    function<vector<int>(string, function<char(char)>, int, int)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
 
-    std::string t;
+    string t;
     while (std::cin >> t) {
         for (auto &c: t) c = toupper(c);
 
-        std::string s = "#";
+        string s = "#";
         s.append(t);
 
         for (int k: minPalFact(s, f, minLength, maxGaps))
-            std::cout << k << " ";
+            std::cout << (k > int(s.size()) - 1 ? -1 : k)  << " ";
         std::cout << std::endl;
     }
     return 0;
