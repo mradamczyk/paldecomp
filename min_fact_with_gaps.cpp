@@ -197,9 +197,9 @@ vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength,
                     }
         }
     }
-if (print && MG[n][maxGaps] > n)
-		std::cout << "NOT POSSIBLE" << std::endl;
-else if (print) {
+    if (print && MG[n][maxGaps] > n)
+        std::cout << "NOT POSSIBLE" << std::endl;
+    else if (print) {
         int prevj = n, prevq = maxGaps;
         int j, q;
         j = D[prevj][prevq].first, q = D[prevj][prevq].second;

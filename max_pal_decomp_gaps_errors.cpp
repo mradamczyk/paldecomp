@@ -237,7 +237,7 @@ int main(int argc, char **argv) {
             case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
             case 'G': maxGaps = atoi(optarg); break;
-	    case 'E': errorsAllowed = atoi(optarg); break;
+            case 'E': errorsAllowed = atoi(optarg); break;
         }
     }
 
@@ -246,12 +246,12 @@ int main(int argc, char **argv) {
     string t;
     while (std::cin >> t) {
         for (auto &c: t) c = toupper(c);
-    	LCEStructure Q(t, f);
-    	vector<pair<int, int> > pals = errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed);
-	std::cerr << "maximal " << errorsAllowed << "-palindromes:" << std::endl;
-    	for (pair<int, int> p: pals)
-        	std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
-	std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrom length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
+        LCEStructure Q(t, f);
+        vector<pair<int, int> > pals = errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed);
+        std::cerr << "maximal " << errorsAllowed << "-palindromes:" << std::endl;
+        for (pair<int, int> p: pals)
+            std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
+        std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrom length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
         for (int k: Q.maxPalFactWithErrosGaps(errorsMetric, errorsAllowed, minLength, maxGaps))
             std::cout << (k > int(t.size()) ? -1 : k) << " ";
         std::cout << std::endl;
