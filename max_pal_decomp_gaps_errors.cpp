@@ -6,8 +6,8 @@
 #include<string>
 #include<unistd.h>
 
-inline char standardPalindrom(const char &t) { return t; }
-inline char dnaComplementaryPalindrom(const char &t) {
+inline char standardPalindrome(const char &t) { return t; }
+inline char dnaComplementaryPalindrome(const char &t) {
     switch (t) {
         case 'A': return 'T';
         case 'C': return 'G';
@@ -208,17 +208,25 @@ class LCEStructure {
                 int prevj = n, prevq = maxGaps;
                 int j, q;
                 j = D[prevj][prevq].first, q = D[prevj][prevq].second;
-                vector<int> rev;
+                vector<int> rev, qs;
+                qs.push_back(prevq - q);
                 while (prevj != j || prevq != q || (j != 0 && q != 0)) {
                     rev.push_back(prevj);
                     prevj = j, prevq = q;
                     j = D[prevj][prevq].first, q = D[prevj][prevq].second;
+                    qs.push_back(prevq - q);
                 }
+                qs.erase(qs.end() - 1);
                 rev.push_back(0);
                 std::reverse(std::begin(rev), std::end(rev));
+                std::reverse(std::begin(qs), std::end(qs));
 
                 for (uint i = 0; i < rev.size() - 1; ++i) {
-                    std::cout << x.substr(rev[i]+1, rev[i+1]-rev[i]) << " ";
+                    std::cout <<
+                      (!qs[i] ? std::string("") : std::string("[")) <<
+                      x.substr(rev[i]+1, rev[i+1]-rev[i]) <<
+                      (!qs[i] ? std::string("") : std::string("]")) <<
+                      " ";
                 }
                 std::cout << std::endl;
             }
@@ -229,7 +237,7 @@ class LCEStructure {
 int main(int argc, char **argv) {
     int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGaps = 0;
     string errorsMetric = "edit"; // or "ham"
-    fprintf(stderr, "usuage is \n -h : for running with Hamming distance [default: edit distance]\n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n -E x: set number of allowed errors to X [default: 0]\n");
+    fprintf(stderr, "usage is \n -h : for running with Hamming distance [default: edit distance]\n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition\n -L X: set minimum palindrome length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n -E x: set number of allowed errors to X [default: 0]\n");
     while ((opt = getopt(argc,argv,"hdpL:G:E:")) != EOF) {
         switch(opt) {
             case 'h': errorsMetric = "ham"; break;
@@ -241,7 +249,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
+    function<char(char)> f = dna ? dnaComplementaryPalindrome : standardPalindrome;
 
     string t;
     while (std::cin >> t) {
@@ -251,7 +259,7 @@ int main(int argc, char **argv) {
         std::cerr << "maximal " << errorsAllowed << "-palindromes:" << std::endl;
         for (pair<int, int> p: pals)
             std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
-        std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrom length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
+        std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrome length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
         for (int k: Q.maxPalFactWithErrosGaps(errorsMetric, errorsAllowed, minLength, maxGaps))
             std::cout << (k > int(t.size()) ? -1 : k) << " ";
         std::cout << std::endl;
