@@ -1,5 +1,7 @@
 // Implementations of https://arxiv.org/pdf/1403.2431.pdf
 
+// JR: Remove from the production code.
+
 #include<functional>
 #include<iostream>
 #include<queue>

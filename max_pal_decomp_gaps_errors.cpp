@@ -1,3 +1,9 @@
+/* Implementation of a solution to
+   the Generalized Maximal Palindromic Decomposition with Gaps and Erros problem
+   in O(n * (g + delta)) time and O(n * g) space
+ */
+
+
 #include<algorithm>
 #include<functional>
 #include<iostream>
@@ -6,8 +12,8 @@
 #include<string>
 #include<unistd.h>
 
-inline char standardPalindrome(const char &t) { return t; }
-inline char dnaComplementaryPalindrome(const char &t) {
+inline char equality(const char &t) { return t; }
+inline char dnaComplementaryRelation(const char &t) {
     switch (t) {
         case 'A': return 'T';
         case 'C': return 'G';
@@ -23,14 +29,18 @@ using std::vector;
 using std::string;
 using std::function;
 
+// JR: A parameter to the respective functions.
 int print = 0;
 
+// JR: What is this function?
 inline int dist(const pair<int, int> &p) {
     return p.second - p.first + 1;
 }
 
+// JR: This class should contain just LCE & LGPal
 class LCEStructure {
     private:
+        // JR: Why are two strings stored?
         string y;
         string x;
         function<char(char)> f;
@@ -84,6 +94,7 @@ class LCEStructure {
             return i - a;
         }
 
+        // JR: Why two functions for "Ham" and just one for "Edit"
         vector< pair<int, int> > allMaxPalHam(int g) {
             int n = this->x.size() - 1;
             vector< pair<int, int> > P;
@@ -98,7 +109,7 @@ class LCEStructure {
             return P;
         }
 
-        // Finding all maximal g-palindrome centered under Edit dist
+        // Finding all maximal g-palindromes under Edit dist
         // For an even-length g-palindrome we set j=i+1
         // For an odd-length g-palindrome we set j=i -- run only when f(t[i])=t[i]
         vector< pair<int, int> > allMaxPalEdit(int g) {
@@ -135,11 +146,13 @@ class LCEStructure {
             return P;
         }
 
+        // JR: What is this function?
         inline string getPal(const pair<int, int> &t) {
             if (t.first > t.second) return "";
             return this->x.substr(t.first, t.second-t.first+1);
         }
 
+        // JR: What is this function?
         void addPalToBucketIfLonger(const pair<int, int> &temp, vector<pair<int, int>> &buckets) {
             int mid = temp.first + temp.second;
             int n = this->x.size() - 1;
@@ -148,7 +161,8 @@ class LCEStructure {
             }
         }
 
-        vector<int> maxPalFactWithErrosGaps(const string &errorsMetric, int errorsAllowed, int minLength, int maxGaps) {
+        // JR: Better return a single number.
+        vector<int> maxPalFactWithErrosGaps(const string &errorsMetric, int errorsAllowed, int minLength, int maxGapsNum) {
             vector<pair<int, int>> Pal;
             if (errorsMetric == "edit") { // Edit distance
                 Pal = allMaxPalEdit(errorsAllowed);
@@ -159,14 +173,16 @@ class LCEStructure {
             int n = this->x.size() - 1;
             int INFTY = 2 * n;
 
+            // JR: If D, D1 are for recovering a solution, pls name them properly.
+            // initialisation
             vector<vector<int>> MG(n+1), MG1(n+1);
             vector<vector<pair<int, int>>> D(n+1), D1(n+1);
             for (int j = 0; j <= n; ++j) {
-                MG[j].resize(maxGaps+1);
-                MG1[j].resize(maxGaps+1);
-                D[j].resize(maxGaps+1);
-                D1[j].resize(maxGaps+1);
-                for (int q = 0; q <= maxGaps; ++q) {
+                MG[j].resize(maxGapsNum+1);
+                MG1[j].resize(maxGapsNum+1);
+                D[j].resize(maxGapsNum+1);
+                D1[j].resize(maxGapsNum+1);
+                for (int q = 0; q <= maxGapsNum; ++q) {
                     if (j == 0) {
                         MG[j][q] = 0;
                         D[j][q] = make_pair(0,0);
@@ -179,11 +195,12 @@ class LCEStructure {
                 }
             }
 
+            // JR: What is this array for?
             vector<vector<int> > P(n+1);
             for (auto &p: Pal) P[p.second].push_back(p.first);
 
             for (int j = 1; j <= n; ++j) {
-                for (int q = 0; q <= maxGaps; ++q) {
+                for (int q = 0; q <= maxGapsNum; ++q) {
                     if (q > 0) {
                         if (MG1[j-1][q] <= MG[j-1][q-1]) {
                             MG1[j][q] = MG1[j-1][q] + 1;
@@ -205,7 +222,7 @@ class LCEStructure {
             }
 
             if (print) {
-                int prevj = n, prevq = maxGaps;
+                int prevj = n, prevq = maxGapsNum;
                 int j, q;
                 j = D[prevj][prevq].first, q = D[prevj][prevq].second;
                 vector<int> rev, qs;
@@ -230,37 +247,41 @@ class LCEStructure {
                 }
                 std::cout << std::endl;
             }
-            return MG[n];
+            return MG[n]; // JR: In the end, if INFTY, return -1.
         }
 };
 
+// JR: This could be in a yet separate file, which imports the two previous ones.
+// JR: Better to run on a single string, not in a loop.
 int main(int argc, char **argv) {
-    int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGaps = 0;
+    int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGapsNum = 0;
     string errorsMetric = "edit"; // or "ham"
-    fprintf(stderr, "usage is \n -h : for running with Hamming distance [default: edit distance]\n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition\n -L X: set minimum palindrome length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n -E x: set number of allowed errors to X [default: 0]\n");
+    fprintf(stderr, "usage is \n -h : for running with Hamming distance [default: edit distance]\n -d : for DNA complement palindromes [default: standard palindromes]\n -p : print decomposition\n -L X: set minimum palindrome length to X [default: 1]\n -G X: set number of allowed gaps to X [default: 0]\n -E x: set number of allowed errors to X [default: 0]\n");
     while ((opt = getopt(argc,argv,"hdpL:G:E:")) != EOF) {
         switch(opt) {
             case 'h': errorsMetric = "ham"; break;
             case 'd': dna = 1; break;
             case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
-            case 'G': maxGaps = atoi(optarg); break;
+            case 'G': maxGapsNum = atoi(optarg); break;
             case 'E': errorsAllowed = atoi(optarg); break;
         }
     }
 
-    function<char(char)> f = dna ? dnaComplementaryPalindrome : standardPalindrome;
+    function<char(char)> f = dna ? dnaComplementaryRelation : equality;
 
     string t;
     while (std::cin >> t) {
         for (auto &c: t) c = toupper(c);
         LCEStructure Q(t, f);
         vector<pair<int, int> > pals = errorsMetric == "edit" ? Q.allMaxPalEdit(errorsAllowed) : Q.allMaxPalHam(errorsAllowed);
+        /*
         std::cerr << "maximal " << errorsAllowed << "-palindromes:" << std::endl;
         for (pair<int, int> p: pals)
             std::cout << p.first << ", " << p.second << " # " << Q.getPal(p) << std::endl;
-        std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrome length: " << minLength << ", max gaps: " << maxGaps << "):" << std::endl;
-        for (int k: Q.maxPalFactWithErrosGaps(errorsMetric, errorsAllowed, minLength, maxGaps))
+        */
+        std::cerr << "maximal " << errorsAllowed << "-palindromes decomposition (" << errorsMetric << " distance, min palindrome length: " << minLength << ", max gaps: " << maxGapsNum << "):" << std::endl;
+        for (int k: Q.maxPalFactWithErrosGaps(errorsMetric, errorsAllowed, minLength, maxGapsNum))
             std::cout << (k > int(t.size()) ? -1 : k) << " ";
         std::cout << std::endl;
     }

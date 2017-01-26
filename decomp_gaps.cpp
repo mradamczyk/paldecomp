@@ -1,3 +1,10 @@
+/* Implementation of a solution to
+   the Generalized Palindromic Decomposition with Gaps problem
+   in O(n log n * g) time and O(n * g) space
+ */
+
+// JR: For the code of brute force, add a similar comment.
+
 #include<algorithm>
 #include<functional>
 #include<iostream>
@@ -7,8 +14,8 @@
 #include<tuple>
 #include<unistd.h>
 
-inline char standardPalindrom(const char &t) { return t; }
-inline char dnaComplementaryPalindrom(const char &t) {
+inline char equality(const char &t) { return t; }
+inline char dnaComplementarityRelation(const char &t) {
     switch (t) {
         case 'A': return 'T';
         case 'C': return 'G';
@@ -30,10 +37,11 @@ using std::string;
 using std::vector;
 using std::function;
 
-int print = 0;
+int print = 0; // JR: this should be a parameter. To be added to palDecompWithGaps
 
-vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLength, int maxGaps) {
-    std::cerr << "FICI(" << minLength <<", " << maxGaps << ")" << std::endl;
+// JR: Better return a single number.
+vector<int> palDecompWithGaps(const string &t, function<char(char)> f, int minLength, int maxGapsNum) {
+    // JR if (print) ... std::cerr << "FICI(" << minLength <<", " << maxGapsNum << ")" << std::endl;
     int n = t.size() - 1;
     int INFTY = 2*n;
 
@@ -42,39 +50,40 @@ vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLengt
     int i, d, k;
     int i1, d1, k1;
 
-    vector<vector<int>> MG(n+1), MG1(n+1), GPL2(maxGaps+1);
-    for (int j = 0; j <= maxGaps; ++j)
-        GPL2[j].resize(n+1);
-
+    // initialisation
+    vector<vector<int>> MG(n+1), MG1(n+1), GPL2(maxGapsNum+1);
+    for (int j = 0; j <= maxGapsNum; ++j)
+        GPL2[j].resize(n+1); // JR: Can this array be hidden inside the computation of MG & MG1?
     for (int j = 0; j <= n; ++j) {
-        MG[j].resize(maxGaps+1);
-        MG1[j].resize(maxGaps+1);
-        for (int q = 0; q <= maxGaps; ++q) {
+        MG[j].resize(maxGapsNum+1);
+        MG1[j].resize(maxGapsNum+1);
+        for (int q = 0; q <= maxGapsNum; ++q) {
             MG[j][q] = (j==0) ? 0 : INFTY;
             MG1[j][q] = INFTY;
         }
     }
-
     G.clear();
 
+    // JR: Can this be subdivided into functions? E.g., first we compute G, then G-trimmed, then MG & MG1?
     for (int j = 1; j <= n; ++j) {
-        //std::cerr << "Loop " << j << ", " << t[j] << std::endl;
+        // JR: Some comment on what is being computed here?
+        // JR: What is G1, G2?
         G1.clear();
         for (const triple &g : G) {
             std::tie(i, d, k) = g;
             if (i > 1 && t[i-1] == f(t[j]))
-                G1.push_back(make_tuple(i-1,d,k));
+                G1.push_back(make_tuple(i-1, d, k));
         }
 
         int r = -j; // i-r big enough to act as inf
         for (const triple &g : G1) {
             std::tie(i, d, k) = g;
             if (i - r != d) {
-                G2.push(make_tuple(i,i-r,1));
+                G2.push(make_tuple(i, i-r, 1));
                 if (k > 1)
                     G2.push(make_tuple(i+d, d, k-1));
             } else {
-                G2.push(make_tuple(i,d,k));
+                G2.push(make_tuple(i, d, k));
             }
             r = i + (k-1)*d;
         }
@@ -102,7 +111,6 @@ vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLengt
             G.push_back(make_tuple(i1, d1, k1));
         }
 
-        //std::cerr << "G : "; for (const triple &g: G) { std::tie(i, d, k) = g; std::cerr << '(' << i << ',' << d << ',' << k << "), "; } std::cerr << std::endl;
         // filter G on length constraint
         G1.clear();
         int maxPos = max(j - minLength + 1, 0);
@@ -110,15 +118,14 @@ vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLengt
             std::tie(i, d, k) = g;
 
             int nk = (maxPos - i) / d + (i <= maxPos);
-            //std::cerr << "maxPos: " << maxPos << ", nk: " << nk << std::endl;
             if (k > 1 && nk > 0)
                 G1.push_back(make_tuple(i, d, nk));
             if (k == 1 && i <= maxPos)
                 G1.push_back(make_tuple(i, d, k));
         }
-        //std::cerr << "G1: "; for (const triple &g: G1) { std::tie(i, d, k) = g; std::cerr << '(' << i << ',' << d << ',' << k << "), "; } std::cerr << std::endl;
 
-        for (int q = 0; q <= maxGaps; ++q) {
+        // compute MG[j] and MG1[j]
+        for (int q = 0; q <= maxGapsNum; ++q) {
             if (q > 0)
                 MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
             MG[j][q] = MG1[j][q];
@@ -135,22 +142,23 @@ vector<int> minPalFactFICI(const string &t, function<char(char)> f, int minLengt
             }
         }
     }
-    return MG[n];
+    return MG[n]; // JR: In the end, if INFTY, return -1.
 }
 
-vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength, int maxGaps) {
-    std::cerr << "BRUTE(" << minLength <<", " << maxGaps << ")" << std::endl;
+// JR: To be moved to another file for production code.
+vector<int> palDecompWithGaps_N2(const string &t, function<char(char)> f, int minLength, int maxGapsNum) {
+    std::cerr << "BRUTE(" << minLength <<", " << maxGapsNum << ")" << std::endl;
     int n = t.size() - 1;
     int INFTY = 2 * n;
 
     vector<vector<int>> MG(n+1), MG1(n+1);
     vector<vector<std::pair<int, int>>> D(n+1), D1(n+1);
     for (int j = 0; j <= n; ++j) {
-        MG[j].resize(maxGaps+1);
-        MG1[j].resize(maxGaps+1);
-        D[j].resize(maxGaps+1);
-        D1[j].resize(maxGaps+1);
-        for (int q = 0; q <= maxGaps; ++q) {
+        MG[j].resize(maxGapsNum+1);
+        MG1[j].resize(maxGapsNum+1);
+        D[j].resize(maxGapsNum+1);
+        D1[j].resize(maxGapsNum+1);
+        for (int q = 0; q <= maxGapsNum; ++q) {
             if (j == 0) {
                 MG[j][q] = 0;
                 D[j][q] = make_pair(0,0);
@@ -177,7 +185,7 @@ vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength,
         if (t[j] == f(t[j]))
             P[j&1].push_back(j);
 
-        for (int q = 0; q <= maxGaps; ++q) {
+        for (int q = 0; q <= maxGapsNum; ++q) {
             if (q > 0) {
                 if (MG1[j-1][q] <= MG[j-1][q-1]) {
                     MG1[j][q] = MG1[j-1][q] + 1;
@@ -197,10 +205,10 @@ vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength,
                     }
         }
     }
-    if (print && MG[n][maxGaps] > n)
+    if (print && MG[n][maxGapsNum] > n)
         std::cout << "NOT POSSIBLE" << std::endl;
     else if (print) {
-        int prevj = n, prevq = maxGaps;
+        int prevj = n, prevq = maxGapsNum;
         int j, q;
         j = D[prevj][prevq].first, q = D[prevj][prevq].second;
         vector<int> rev;
@@ -221,22 +229,24 @@ vector<int> minPalFactN2(const string &t, function<char(char)> f, int minLength,
     return MG[n];
 }
 
+// JR: This could be in a yet separate file, which imports the two previous ones.
+// JR: Better to run on a single string, not in a loop.
 int main(int argc, char **argv) {
-    int opt, brute, dna, minLength = 1, maxGaps = 0;
+    int opt, brute, dna, minLength = 1, maxGapsNum = 0;
     brute = dna = 0;
-    fprintf(stderr, "usuage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -p : to print decomposition (works only with -b)\n -L X: set minimum palindrom length to X [default: 1]\n -G X: set maximum allowed gaps to X [default: 0]\n");
+    fprintf(stderr, "usage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -p : print decomposition (works only with -b)\n -L X: set minimum palindrome length to X [default: 1]\n -G X: set maximum allowed number of gaps to X [default: 0]\n");
     while ((opt = getopt(argc,argv,"bdpL:G:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
             case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
-            case 'G': maxGaps = atoi(optarg); break;
+            case 'G': maxGapsNum = atoi(optarg); break;
         }
     }
 
-    function<char(char)> f = dna ? dnaComplementaryPalindrom : standardPalindrom;
-    function<vector<int>(string, function<char(char)>, int, int)> minPalFact = brute ? minPalFactN2 : minPalFactFICI;
+    function<char(char)> f = dna ? dnaComplementarityRelation : equality;
+    function<vector<int>(string, function<char(char)>, int, int)> minPalFact = brute ? palDecompWithGaps_N2 : palDecompWithGaps;
 
     string t;
     while (std::cin >> t) {
@@ -245,7 +255,7 @@ int main(int argc, char **argv) {
         string s = "#";
         s.append(t);
 
-        for (int k: minPalFact(s, f, minLength, maxGaps))
+        for (int k: minPalFact(s, f, minLength, maxGapsNum))
             std::cout << (k > int(s.size()) - 1 ? -1 : k)  << " ";
         std::cout << std::endl;
     }
