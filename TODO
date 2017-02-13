@@ -1,0 +1,10 @@
+1) max pal decomp gaps erros -> filter palindromes on length >= minLength
+2) implement brute for GenericPalindromes
+3) implement printDecomp for PalindromicDecompFast
+4) Fix all comments
+5) DecompositionWithGaps -> change vector run() to int run()
+6) DecompositionWithGaps -> add getResults()
+7) LCEStructure -> name better and use library for LGPal
+
+8) lepsze formy wizualizacji
+9) testy z innymi (nie tylko maximal) palindromami
