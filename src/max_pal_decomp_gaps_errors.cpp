@@ -39,13 +39,20 @@ int main(int argc, char **argv) {
 
     MaximalGPalindromes palindromesFinder(t, f);
 
-    vector< pair<int,int> > palindromes;
+    vector< pair<int,int> > palindromes, filteredPalindromes;
     if (errorsMetric == "edit") {
         palindromes = palindromesFinder.allMaximalEditDistGPalindromes(errorsAllowed);
     } else {
         palindromes = palindromesFinder.allMaximalHammingDistGPalindromes(errorsAllowed);
     }
-    // TODO: filter palindromes on length >= minLength
+
+    // filter palindromes on length >= minLength
+    std::copy_if(palindromes.begin(), palindromes.end(),
+            std::back_inserter(filteredPalindromes),
+            [minLength](const pair<int, int> &p) {
+                return p.second - p.first + 1 >= minLength;
+            }
+    );
 
     GenericDecompositionWithGaps *solver = nullptr;
     if (brute) {
@@ -54,7 +61,9 @@ int main(int argc, char **argv) {
         solver = new GenericDecompositionWithGapsFastImpl(t, palindromes, maxGapsNum);
     }
 
-    for (int k: solver->run()) {
+    solver->run();
+
+    for (int k: solver->getResults()) {
         std::cout << (k > int(t.size()) ? -1 : k) << " ";
     }
     std::cout << std::endl;

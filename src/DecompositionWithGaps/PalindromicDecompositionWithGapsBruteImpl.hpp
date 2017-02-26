@@ -26,7 +26,7 @@ class PalindromicDecompositionWithGapsBruteImpl : public PalindromicDecompositio
     PalindromicDecompositionWithGapsBruteImpl(const string &t, function<char(char)> f, int minLength, int maxGapsNum)
         : PalindromicDecompositionWithGaps(t, f, minLength, maxGapsNum) {}
 
-    vector<int> run() {
+    int run() {
         MG.resize(n+1); MG1.resize(n+1); D.resize(n+1); D1.resize(n+1);
 
         for (int j = 0; j <= n; ++j) {
@@ -81,7 +81,15 @@ class PalindromicDecompositionWithGapsBruteImpl : public PalindromicDecompositio
                         }
             }
         }
-        return MG[n];
+        return MG[n][maxGapsNum] > n ? -1 : MG[n][maxGapsNum];
+    }
+
+    vector<int> getResults() {
+        vector<int> results;
+        for(int res: MG[n]) {
+            results.push_back(res > n ? -1 : res);
+        }
+        return results;
     }
 
     void printDecomposition() {

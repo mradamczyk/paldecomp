@@ -11,7 +11,8 @@ class GenericDecompositionWithGaps : public DecompositionWithGaps {
         GenericDecompositionWithGaps(const std::string& t, const std::vector<std::pair<int, int>> &words, int maxGapsNum) :
             DecompositionWithGaps(t, maxGapsNum), words(words) {}
 
-        virtual std::vector<int> run() = 0;
+        virtual int run() = 0;
+        virtual std::vector<int> getResults() = 0;
         virtual void printDecomposition() = 0;
     protected:
         std::vector<std::pair<int, int>> words;

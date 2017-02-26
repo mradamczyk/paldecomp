@@ -28,7 +28,7 @@ class GenericDecompositionWithGapsFastImpl : public GenericDecompositionWithGaps
         GenericDecompositionWithGapsFastImpl(string& t, const vector<pair<int, int>> &words, int maxGapsNum)
             : GenericDecompositionWithGaps(t, words, maxGapsNum) {}
 
-        vector<int> run() {
+        int run() {
             this->init();
             // JR: What is this array for?
             vector<vector<int> > P(n+1);
@@ -54,7 +54,15 @@ class GenericDecompositionWithGapsFastImpl : public GenericDecompositionWithGaps
                             }
                 }
             }
-            return MG[n]; // JR: In the end, if INFTY, return -1.
+            return MG[n][maxGapsNum] > n ? -1 : MG[n][maxGapsNum];
+        }
+
+        vector<int> getResults() {
+            vector<int> results;
+            for(int res: MG[n]) {
+                results.push_back(res > n ? -1 : res);
+            }
+            return results;
         }
 
         void printDecomposition() {

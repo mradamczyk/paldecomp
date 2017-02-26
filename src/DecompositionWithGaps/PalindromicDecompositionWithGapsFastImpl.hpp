@@ -30,8 +30,7 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
     PalindromicDecompositionWithGapsFastImpl(const string &t, function<char(char)> f, int minLength, int maxGapsNum) 
         : PalindromicDecompositionWithGaps(t, f, minLength, maxGapsNum) {}
 
-    // JR: Better return a single number.
-    vector<int> run() {
+    int run() {
         init();
         vector<triple> G, G1, G2;
         // G1 is G' from Fici work, G2 is G'' from Fici work
@@ -42,7 +41,16 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
             G = filterPalindromesOnLegth(G2, j);
             computeMG(j, G);
         }
-        return MG[n]; // JR: In the end, if INFTY, return -1.
+
+        return MG[n][maxGapsNum] > n ? -1 : MG[n][maxGapsNum];
+    }
+
+    vector<int> getResults() {
+        vector<int> results;
+        for(int res: MG[n]) {
+            results.push_back(res > n ? -1 : res);
+        }
+        return results;
     }
 
     void printDecomposition() {
