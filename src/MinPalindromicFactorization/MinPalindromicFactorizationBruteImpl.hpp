@@ -1,6 +1,3 @@
-#ifndef MIN_PALINDROMIC_FACTORIZATION_BRUTE
-#define MIN_PALINDROMIC_FACTORIZATION_BRUTE
-
 // Implementations of https://arxiv.org/pdf/1403.2431.pdf
 
 #include<functional>
@@ -43,4 +40,3 @@ class MinPalindromicFactorizationBruteImpl : public MinPalindromicFactorization 
     }
 };
 
-#endif

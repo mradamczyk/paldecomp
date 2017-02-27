@@ -1,7 +1,14 @@
-// TODO: rename from LCE
-// TODO: comment here
-#ifndef MAX_PAL_DECOMP_LCE
-#define MAX_PAL_DECOMP_LCE
+/*
+ Implementation of a structure answering LGPal queries
+
+ Based on Longest Common Extension query, using:
+   - suffix array
+   - longest common prefix table
+   - range minimum query
+ implementations from SDSL-LITE library.
+
+ According to https://pdfs.semanticscholar.org/55c7/218e5e1e9fcddaa7bebeb6badabd2d5ae7fb.pdf
+*/
 
 #include<algorithm>
 #include<functional>
@@ -25,7 +32,7 @@ using namespace sdsl;
 class LGPal {
     private:
         int n;
-        string x; // x = #t
+        string x; // x = #t (for brute only)
         string y; // y = #t$f(t^R)
         function<char(char)> f;
         csa_bitcompressed<> csa;
@@ -65,7 +72,6 @@ class LGPal {
 
     private:
         // Compute LCE(i, j) using inverted suffix array, longest common prefix and range-minimum queries
-        // https://pdfs.semanticscholar.org/55c7/218e5e1e9fcddaa7bebeb6badabd2d5ae7fb.pdf
 
         inline int LCE(int i, int j) const {
             int a = csa.isa[i];
@@ -82,4 +88,3 @@ class LGPal {
         }
 };
 
-#endif

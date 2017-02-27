@@ -1,9 +1,6 @@
-/* Implementation of a solution to
+/* Implementation of a slow solution to
    the Generalized Palindromic Decomposition with Gaps problem
-   in O(n log n * g) time and O(n * g) space
-   */
-
-// TODO: JR: For the code of brute force, add a similar comment.
+*/
 
 #include<iostream>
 #include<functional>

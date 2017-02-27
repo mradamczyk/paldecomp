@@ -1,3 +1,8 @@
+/*
+ Implementation of finding all maximal g-palindromes
+ under Edit- or Hamming- distance.
+*/
+
 #include<algorithm>
 #include<functional>
 #include<vector>
@@ -101,3 +106,4 @@ class MaximalGPalindromes {
             return i - a;
         }
 };
+

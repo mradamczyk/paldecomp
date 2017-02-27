@@ -64,7 +64,7 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
         GPL2.resize(maxGapsNum+1);
 
         for (int j = 0; j <= maxGapsNum; ++j)
-            GPL2[j].resize(n+1); // JR: Can this array be hidden inside the computation of MG & MG1?
+            GPL2[j].resize(n+1); // JR: Can this array be hidden inside the computation of MG & MG1? .. Not sure what do you mean
         for (int j = 0; j <= n; ++j) {
             MG[j].resize(maxGapsNum+1);
             MG1[j].resize(maxGapsNum+1);
@@ -133,7 +133,6 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
 
     vector<triple> filterPalindromesOnLegth(const vector<triple> &G, int j) {
-        // filter G on length constraint
         vector<triple> G1(n);
         int maxPos = max(j - minLength + 1, 0);
         int i, d, k;
@@ -151,7 +150,6 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
     void computeMG(int j, vector<triple> G) {
         int i, d, k, r;
-        // compute MG[j] and MG1[j]
         for (int q = 0; q <= maxGapsNum; ++q) {
             if (q > 0)
                 MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;

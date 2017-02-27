@@ -1,7 +1,8 @@
-/* Implementation of a solution to
-   the Generalized Maximal Palindromic Decomposition with Gaps and Errors problem
-   in O(n * (g + delta)) time and O(n * g) space
-   */
+/*
+    Implementation of a solution to
+    the Generalized Maximal Palindromic Decomposition with Gaps and Errors problem
+    in O(n * (g + delta)) time and O(n * g) space
+*/
 
 #include<algorithm>
 #include<functional>
@@ -30,7 +31,8 @@ class GenericDecompositionWithGapsFastImpl : public GenericDecompositionWithGaps
 
         int run() {
             this->init();
-            // JR: What is this array for?
+
+            // sort palindromes by end positions using bucket sort in vector P
             vector<vector<int> > P(n+1);
             for (auto &p: words) P[p.second].push_back(p.first);
 

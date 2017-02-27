@@ -1,6 +1,3 @@
-#ifndef MIN_PALINDROMIC_FACTORIZATION_FICI
-#define MIN_PALINDROMIC_FACTORIZATION_FICI
-
 #include<functional>
 #include<iostream>
 #include<queue>
@@ -8,7 +5,6 @@
 #include<tuple>
 #include<unistd.h>
 #include<vector>
-#include "../relations.hpp"
 #include "MinPalindromicFactorization.h"
 
 using triple = std::tuple<int, int, int>;
@@ -98,4 +94,3 @@ class MinPalindromicFactorizationFiciImpl : public MinPalindromicFactorization {
     }
 };
 
-#endif
