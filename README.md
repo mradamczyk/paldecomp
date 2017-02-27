@@ -1,1 +1,5 @@
-# My project's README
+# Install
+
+./install.sh
+
+will install external `sdsl-lite` library

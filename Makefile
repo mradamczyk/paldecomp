@@ -1,39 +1,33 @@
-CC=g++
-CXX=g++
-CFLAGS=-std=c++11 -Wall -Wpedantic
-EXECUTABLES=min_pal_fact max_pal_decomp_gaps_errors pal_decomp_gaps
+include ./external/sdsl-lite/Make.helper
+CXX=$(MY_CXX)
+CCLIB=-lsdsl -ldivsufsort -ldivsufsort64
+EXECUTABLES=min_pal_fact max_pal_decomp_gaps_errors pal_decomp_gaps test_lgpal
+
+SRC_DIRS=src
+BUILD_DIR=build
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+CXXFLAGS= $(MY_CXX_FLAGS) $(MY_CXX_OPT_FLAGS) -std=c++11 -DNDEBUG -O3 -MMD -MP $(INC_FLAGS) -I$(INC_DIR) -L$(LIB_DIR)
+
+SRCS := $(shell find $(SRC_DIRS) -mindepth 2 -name "*.cpp" -or -name "*.hpp")
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+SOURCES=$(shell find $(SRC_DIRS) -name "*.cpp" -depth 1 -exec basename {} \;)
+EXECUTABLES=$(SOURCES:.cpp=.x)
 
 all: $(EXECUTABLES)
 
-SRC_DIRS ?= src
-BUILD_DIR ?= build
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
-
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.hpp)
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-$DEPS := $(OBJS:.o=.d)
-
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.hpp.o: %.hpp
 	mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-min_pal_fact: $(OBJS) src/min_pal_fact.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) src/min_pal_fact.cpp -o $@
-
-pal_decomp_gaps: $(OBJS) src/pal_decomp_gaps.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) src/pal_decomp_gaps.cpp -o $@
-
-max_pal_decomp_gaps_errors: $(OBJS) src/max_pal_decomp_gaps_errors.cpp
-	mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) src/max_pal_decomp_gaps_errors.cpp -o $@
+%.x: src/%.cpp $(OBJS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(CCLIB) $(LDFLAGS)
 
 gen-test:
 	mkdir -p dna/
@@ -52,7 +46,11 @@ d-test: gen-test
 
 .PHONY: clean
 clean:
-	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) dna/* fici.out brute.out
+	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna/* fici.out brute.out
+
+deepclean:
+	clean
+	rm -rf include/ lib/
 
 -include $(DEPS)
 	

@@ -1,7 +1,8 @@
-1) Fix all comments
-2) unit tests (banditcpp.h)
-3) implement brute for GenericPalindromes
-4) implement printDecomp for PalindromicDecompFast
+0) Fix all comments
+1) unit tests (banditcpp.h)
+2) implement brute for GenericPalindromes
+3) implement printDecomp for PalindromicDecompFast
 
 6) lepsze formy wizualizacji
 7) testy z innymi (nie tylko maximal) palindromami
+8) README
