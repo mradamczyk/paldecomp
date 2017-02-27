@@ -1,5 +1,5 @@
 # Install
 
-./install.sh
+`. ./install.sh`
 
 will install external `sdsl-lite` library
