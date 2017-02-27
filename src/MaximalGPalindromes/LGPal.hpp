@@ -22,7 +22,7 @@ using std::function;
 using namespace sdsl;
 
 
-class LCEStructure {
+class LGPal {
     private:
         int n;
         string x; // x = #t
@@ -33,7 +33,7 @@ class LCEStructure {
         rmq_succinct_sct<> rmq;
 
     public:
-        LCEStructure(string t, function<char(char)> f) : n(t.size()), f(f) {
+        LGPal(string t, function<char(char)> f) : n(t.size()), f(f) {
             // construct string x = #t (for brute) and y = #t$f(t^R)
             y = "#";
             y.append(t);
@@ -49,13 +49,17 @@ class LCEStructure {
             rmq = rmq_succinct_sct<>(&lcp); // range minimum query over sequence of LCP
         }
 
-        int LGPalBrute(int i, int j) const {
+        int brute(int i, int j) const {
             int k = 0;
             while (i > 0 && j <= n && f(x[i]) == x[j]) --i, ++j, ++k;
             return k;
         }
 
-        int LGPal(int i, int j) const {
+        int fast(int i, int j) const {
+            return LCE(2*n + 2 - i, j);
+        }
+
+        int operator()(int i, int j) const {
             return LCE(2*n + 2 - i, j);
         }
 

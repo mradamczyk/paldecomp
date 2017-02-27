@@ -2,7 +2,6 @@
 2) unit tests (banditcpp.h)
 3) implement brute for GenericPalindromes
 4) implement printDecomp for PalindromicDecompFast
-5) LCEStructure -> name better and use library for LGPal
 
 6) lepsze formy wizualizacji
 7) testy z innymi (nie tylko maximal) palindromami

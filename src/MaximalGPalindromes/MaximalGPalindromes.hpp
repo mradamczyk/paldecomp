@@ -3,7 +3,7 @@
 #include<vector>
 #include<string>
 #include<unistd.h>
-#include "LCEStructure.hpp"
+#include "LGPal.hpp"
 
 using std::pair;
 using std::make_pair;
@@ -14,11 +14,11 @@ using std::function;
 class MaximalGPalindromes {
     private:
         int n;
-        LCEStructure q;
+        LGPal lgpal;
 
     public:
         MaximalGPalindromes(const string &t, function<char(char)> f)
-            : n(t.size()), q(LCEStructure(t, f)) {}
+            : n(t.size()), lgpal(LGPal(t, f)) {}
 
         // Finding all maximal g-palindromes under Hamming dist
         vector< pair<int, int> > allMaximalHammingDistGPalindromes(int g) {
@@ -47,7 +47,7 @@ class MaximalGPalindromes {
                 for (auto &p: P) {
                     i = p.first, j = p.second;
                     for (const pair<int,int> &c: vector< pair<int, int> >{{1,0}, {0,1}, {1,1}}) {
-                        d = q.LGPal(i-1-c.first, j+1+c.second);
+                        d = lgpal(i-1-c.first, j+1+c.second);
                         i1 = i - c.first - d, j1 = j + c.second + d;
                         addPalToBucketIfLonger(make_pair(i1, j1), buckets);
                     }
@@ -91,7 +91,7 @@ class MaximalGPalindromes {
             int a = i, b = j, d;
             for (int s = 0; s <= g; ++s) {
                 if (a == 0 || b == n+1) return i - a;
-                d = q.LGPal(a, b);
+                d = lgpal(a, b);
                 a -= d;
                 b += d;
                 if (a == 0 || b == n+1) return i - a;
