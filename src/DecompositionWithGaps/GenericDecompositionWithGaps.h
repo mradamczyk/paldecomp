@@ -1,3 +1,4 @@
+/* minimal (maxGapsNum, F)-factorization of t */
 #ifndef GENERIC_DECOMPOSITION_WITH_GAPS_H
 #define GENERIC_DECOMPOSITION_WITH_GAPS_H
 
@@ -8,14 +9,13 @@
 
 class GenericDecompositionWithGaps : public DecompositionWithGaps {
     public:
-        GenericDecompositionWithGaps(const std::string& t, const std::vector<std::pair<int, int>> &words, int maxGapsNum) :
-            DecompositionWithGaps(t, maxGapsNum), words(words) {}
+        GenericDecompositionWithGaps(const std::string& t, const std::vector<std::pair<int, int>> &F, int maxGapsNum) :
+            DecompositionWithGaps(t, maxGapsNum), F(F) {}
 
         virtual int run() = 0;
-        virtual std::vector<int> getResults() = 0;
         virtual void printDecomposition() = 0;
     protected:
-        std::vector<std::pair<int, int>> words;
+        std::vector<std::pair<int, int>> F;
 };
 
 #endif

@@ -12,7 +12,6 @@ class PalindromicDecompositionWithGaps : public DecompositionWithGaps {
             DecompositionWithGaps(t, maxGapsNum), f(f), minLength(minLength) {}
 
         virtual int run() = 0;
-        virtual std::vector<int> getResults() = 0;
         virtual void printDecomposition() = 0;
     protected:
         std::function<char(char)> f;

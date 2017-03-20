@@ -1,6 +1,6 @@
 /* Implementation of a solution to
    the Generalized Palindromic Decomposition with Gaps problem
-   in O(n log n * g) time and O(n * g) space
+   in O(n log n * g) time and O(n * g) space complexity
    */
 
 #include<algorithm>
@@ -24,6 +24,8 @@ using std::function;
 
 class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecompositionWithGaps {
     vector<vector<int>> MG, MG1;
+
+    // GPL2 is used similarly as GPL in Fici et al., J. Discr. Alg., 2014
     vector<vector<int>> GPL2;
 
     public:
@@ -32,25 +34,19 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
     int run() {
         init();
-        vector<triple> G, G1, G2;
-        // G1 is G' from Fici work, G2 is G'' from Fici work
+        vector<triple> G, G1;
+        // G1 is G' from Fici et al., J. Discr. Alg., 2014
 
+        G.clear();
+        int i, d, k;
         for (int j = 1; j <= n; ++j) {
             G1 = extendPalindromes(G, j);
-            G2 = fixGapsAndMergeTriples(G1, j);
-            G = filterPalindromesOnLegth(G2, j);
-            computeMG(j, G);
+            G = fixGapsAndMergeTriples(G1, j);
+            G1 = filterPalindromesOnLegth(G, j);
+            computeMG(j, G1);
         }
 
         return MG[n][maxGapsNum] > n ? -1 : MG[n][maxGapsNum];
-    }
-
-    vector<int> getResults() {
-        vector<int> results;
-        for(int res: MG[n]) {
-            results.push_back(res > n ? -1 : res);
-        }
-        return results;
     }
 
     void printDecomposition() {
@@ -64,7 +60,8 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
         GPL2.resize(maxGapsNum+1);
 
         for (int j = 0; j <= maxGapsNum; ++j)
-            GPL2[j].resize(n+1); // JR: Can this array be hidden inside the computation of MG & MG1? .. Not sure what do you mean
+            GPL2[j].resize(n+1);
+
         for (int j = 0; j <= n; ++j) {
             MG[j].resize(maxGapsNum+1);
             MG1[j].resize(maxGapsNum+1);
@@ -77,7 +74,6 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
     vector<triple> extendPalindromes(const vector<triple> &G, int j) {
         vector<triple> G1;
-        G1.clear();
         int i, d, k;
         for (const triple &g : G) {
             std::tie(i, d, k) = g;
@@ -112,7 +108,6 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
         if (t[j] == f(t[j]))
             G2.push(make_tuple(j, j-r, 1));
 
-        G.clear();
         if (!G2.empty()) {
             std::tie(i1, d1, k1) = G2.front();
             G2.pop();
@@ -133,7 +128,7 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
 
     vector<triple> filterPalindromesOnLegth(const vector<triple> &G, int j) {
-        vector<triple> G1(n);
+        vector<triple> G1;
         int maxPos = max(j - minLength + 1, 0);
         int i, d, k;
         for (const triple &g : G) {
@@ -150,6 +145,7 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
 
     void computeMG(int j, vector<triple> G) {
         int i, d, k, r;
+
         for (int q = 0; q <= maxGapsNum; ++q) {
             if (q > 0)
                 MG1[j][q] = min(MG1[j-1][q], MG[j-1][q-1]) + 1;
@@ -167,7 +163,5 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
             }
         }
     }
-
-
-
 };
+

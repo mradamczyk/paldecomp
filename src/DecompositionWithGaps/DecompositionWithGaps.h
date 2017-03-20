@@ -6,9 +6,8 @@
 
 class DecompositionWithGaps {
     public:
-        DecompositionWithGaps(const std::string &t, int maxGapsNum) : maxGapsNum(maxGapsNum), n(t.size() - 1), t(t) {INFTY = 2 * n;}
+        DecompositionWithGaps(const std::string &t, int maxGapsNum) : maxGapsNum(maxGapsNum), n(t.size()), t("#" + t) {INFTY = 2 * n;}
         virtual int run() = 0;
-        virtual std::vector<int> getResults() = 0;
         virtual void printDecomposition() = 0;
 
     protected:

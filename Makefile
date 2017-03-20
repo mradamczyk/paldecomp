@@ -7,7 +7,7 @@ SRC_DIRS=src
 BUILD_DIR=build
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-CXXFLAGS= $(MY_CXX_FLAGS) $(MY_CXX_OPT_FLAGS) -std=c++11 -DNDEBUG -O3 -MMD -MP $(INC_FLAGS) -I$(INC_DIR) -L$(LIB_DIR)
+CXXFLAGS= $(MY_CXX_FLAGS) $(MY_CXX_OPT_FLAGS) -std=c++11 -DNDEBUG -O3 -MMD -MP $(INC_FLAGS) -I$(INC_DIR) 
 
 SRCS := $(shell find $(SRC_DIRS) -mindepth 2 -name "*.cpp" -or -name "*.hpp")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -27,26 +27,74 @@ $(BUILD_DIR)/%.hpp.o: %.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.x: src/%.cpp $(OBJS)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(CCLIB) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(CCLIB) $(LDFLAGS) -L$(LIB_DIR)
 
 gen-test:
 	mkdir -p dna/
+
+pal_decomp_gaps-s-test: gen-test
+	python gen_random_dna.py 100000 30 > dna/random.in
+	for i in $$(seq 1 10); do \
+		echo "G: " $$i; \
+		./pal_decomp_gaps.x -L 4 -G $$i -b < dna/random.in > brute.out 2>/dev/null; \
+		./pal_decomp_gaps.x -L 4 -G $$i < dna/random.in > fast.out 2>/dev/null; \
+		diff fast.out brute.out; \
+	done;
+
+pal_decomp_gaps-d-test: gen-test
 	for i in $$(seq 1 10); do echo $$i; python gen_dna.py $$i > dna/$$i.in; done
-	python gen_random_dna.py 1000000 30 > dna/random.in
+	for i in $$(seq 1 10); do \
+		echo "len: " $$i; \
+		for g in $$(seq 1 10); do \
+			echo "G: " $$g; \
+			./pal_decomp_gaps.x -d -L 2 -G $$g -b < dna/$$i.in > brute.out 2>/dev/null; \
+			./pal_decomp_gaps.x -d -L 2 -G $$g < dna/$$i.in > fast.out 2>/dev/null; \
+			diff fast.out brute.out; \
+		done;\
+	done;
+	python gen_random_dna.py 100000 30 > dna/random.in
+	for i in $$(seq 1 10); do \
+		echo "G: " $$i; \
+		./pal_decomp_gaps.x -d -L 4 -G $$i -b < dna/random.in > brute.out 2>/dev/null; \
+		./pal_decomp_gaps.x -d -L 4 -G $$i < dna/random.in > fast.out 2>/dev/null; \
+		diff fast.out brute.out; \
+	done;
 
-s-test: gen-test
-	./build/min_fact_with_gaps -L 4 -G 10 -b < dna/random.in > brute.out 2>/dev/null
-	./build/min_fact_with_gaps -L 4 -G 10 < dna/random.in > fici.out 2>/dev/null
-	diff fici.out brute.out
+max_pal_decomp_gaps_errors-s-test: gen-test
+	python gen_random_dna.py 100000 18 > dna/random.in
+	for i in $$(seq 1 10); do \
+		echo "G: " $$i; \
+		./max_pal_decomp_gaps_errors.x -L 4 -G $$i -b < dna/random.in > brute.out 2>/dev/null; \
+		./max_pal_decomp_gaps_errors.x -L 4 -G $$i < dna/random.in > fast.out 2>/dev/null; \
+		diff fast.out brute.out; \
+	done;
 
-d-test: gen-test
-	./build/min_fact_with_gaps -d -L 4 -G 10 -b < dna/random.in > brute.out 2>/dev/null
-	./build/min_fact_with_gaps -d -L 4 -G 10 < dna/random.in > fici.out 2>/dev/null
-	diff fici.out brute.out
+max_pal_decomp_gaps_errors-d-test: gen-test
+	python gen_random_dna.py 10 18 > dna/random.in
+	echo "edit";
+	for e in $$(seq 0 3); do \
+		echo "E: " $$e; \
+		for g in $$(seq 0 3); do \
+			echo "G: " $$g; \
+			./max_pal_decomp_gaps_errors.x -d -L 4 -G $$i -E $$e -b < dna/random.in > brute.out 2>/dev/null; \
+			./max_pal_decomp_gaps_errors.x -d -L 4 -G $$i -E $$e < dna/random.in > fast.out 2>/dev/null; \
+			diff fast.out brute.out; \
+		done;\
+	done;
+	echo "Hamming";
+	for e in $$(seq 0 3); do \
+		echo "E: " $$e; \
+		for g in $$(seq 0 3); do \
+			echo "G: " $$g; \
+			./max_pal_decomp_gaps_errors.x -d -h -L 4 -h -G $$i -E $$e -b < dna/random.in > brute.out 2>/dev/null; \
+			./max_pal_decomp_gaps_errors.x -d -h -L 4 -h -G $$i -E $$e < dna/random.in > fast.out 2>/dev/null; \
+			diff fast.out brute.out; \
+		done;\
+	done;
 
 .PHONY: clean
 clean:
-	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna/* fici.out brute.out
+	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna fast.out brute.out
 
 deepclean:
 	clean
