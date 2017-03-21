@@ -13,7 +13,7 @@ SRCS := $(shell find $(SRC_DIRS) -mindepth 2 -name "*.cpp" -or -name "*.hpp")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-SOURCES=$(shell find $(SRC_DIRS) -name "*.cpp" -depth 1 -exec basename {} \;)
+SOURCES=$(shell find $(SRC_DIRS) -maxdepth 1 -name "*.cpp" -exec basename {} \;)
 EXECUTABLES=$(SOURCES:.cpp=.x)
 
 all: $(EXECUTABLES)

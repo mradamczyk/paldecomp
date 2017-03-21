@@ -38,7 +38,7 @@ class GenericDecompositionWithGapsBruteImpl : public GenericDecompositionWithGap
 
         void printDecomposition() {
             int x, y, end = 0;
-            for (int i = 0; i < bestSolution.size(); ++i)
+            for (uint i = 0; i < bestSolution.size(); ++i)
                 if ( bestSolution[i] == 1) {
                     x = F[i].first, y = F[i].second;
                     if (end + 1 != x) {
@@ -59,7 +59,7 @@ class GenericDecompositionWithGapsBruteImpl : public GenericDecompositionWithGap
         }
 
         void findBestSolution(int lastEnd, int usedGaps, vector<bool> currentSolution, int currentScore) {
-            int k = currentSolution.size();
+            uint k = currentSolution.size();
             if (k == F.size()) {
                 if (lastEnd != n && usedGaps >= maxGapsNum) {
                     return; // not allowed

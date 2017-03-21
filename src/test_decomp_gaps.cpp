@@ -16,7 +16,7 @@ using std::vector;
 using std::string;
 using std::function;
 
-int main(int argc, char **argv) {
+int main() {
     string t = "#aaaabbbbccccddddeeee";
     vector<pair<int,int>> F;
     F.push_back(make_pair(2,7));

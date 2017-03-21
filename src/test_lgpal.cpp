@@ -13,8 +13,8 @@ int main() {
     string in;
     while (cin >> in) {
         LGPal lgpal(in, f);
-        for (int i = 1; i <= in.size(); ++i)
-            for (int j = i; j <= in.size(); ++j) {
+        for (uint i = 1; i <= in.size(); ++i)
+            for (uint j = i; j <= in.size(); ++j) {
                 int brute = lgpal.brute(i, j);
                 int fast = lgpal(i, j);
                 if (brute != fast)

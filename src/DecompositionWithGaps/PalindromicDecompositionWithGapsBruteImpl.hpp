@@ -6,6 +6,7 @@
 #include<functional>
 #include<vector>
 #include<string>
+#include<algorithm>
 #include "PalindromicDecompositionWithGaps.h"
 
 using std::pair;

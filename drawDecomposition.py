@@ -193,14 +193,14 @@ def drawGraph(g):
         G.node("%d" % node, values["label"], fontsize='40', style='bold', bgcolor=values.get('fillcolor', 'white'), color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
     for (x, y, values) in g.edges(data=True):
         G.edge("%d" % x, "%d" % y, style=values["style"])
-    G.render("decomposition", view=True)
+    G.render("decomposition")
 
 def main(argv):
     dna, delta = False,  0
     try:
         opts, args = getopt.getopt(argv,"dE:")
     except getopt.GetoptError:
-        print 'drawDecomposition.py [-d] [-E N]'
+        print ('drawDecomposition.py [-d] [-E N]')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-d':

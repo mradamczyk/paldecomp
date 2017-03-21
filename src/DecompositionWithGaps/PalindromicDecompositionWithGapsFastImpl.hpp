@@ -38,7 +38,6 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
         // G1 is G' from Fici et al., J. Discr. Alg., 2014
 
         G.clear();
-        int i, d, k;
         for (int j = 1; j <= n; ++j) {
             G1 = extendPalindromes(G, j);
             G = fixGapsAndMergeTriples(G1, j);
