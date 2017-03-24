@@ -185,7 +185,7 @@ def decomposition2graph(f, decomposition, delta):
             last_x += 1
     return g
 
-def drawGraph(g):
+def drawGraph(g, fileName):
     G = gv.Graph(engine='neato', format='svg')
     G.graph_attr['size'] = '10'
     for node, values in g.nodes(data=True):
@@ -193,25 +193,27 @@ def drawGraph(g):
         G.node("%d" % node, values["label"], fontsize='40', style='bold', bgcolor=values.get('fillcolor', 'white'), color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
     for (x, y, values) in g.edges(data=True):
         G.edge("%d" % x, "%d" % y, style=values["style"])
-    G.render("decomposition")
+    G.render(fileName)
 
 def main(argv):
-    dna, delta = False,  0
+    dna, delta, fileName = False,  0, 'decomposition'
     try:
-        opts, args = getopt.getopt(argv,"dE:")
+        opts, args = getopt.getopt(argv,"dE:f:")
     except getopt.GetoptError:
-        print ('drawDecomposition.py [-d] [-E N]')
+        print ('drawDecomposition.py [-d] [-E N] [-f fileName]')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-d':
             dna = True
         elif opt == '-E':
             delta = int(arg)
+        elif opt == '-f':
+            fileName = arg
 
     sys.stdin.readline()
     decomp = sys.stdin.readline().strip()
     g = decomposition2graph(dnaComplementarity if dna else (lambda x: x), decomp, delta)
-    drawGraph(g)
+    drawGraph(g, fileName)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
