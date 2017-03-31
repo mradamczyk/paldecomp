@@ -134,7 +134,7 @@ def drawGraph(g, fileName):
             if values["label"] == '#':
                 G.node("%d" % node, fontsize='1', style='invisible', pos="%d,%d!" % (x, y), shape='point')
             else:
-                G.node("%d" % node, values["label"], fontsize='40', style='filled', fillcolor='white', color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
+                G.node("%d" % node, values["label"], fontsize='40', style='filled, bold', fillcolor='white', color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
 
     G.render(fileName)
 
