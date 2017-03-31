@@ -16,5 +16,7 @@ Make sure your virtualenv is active:
 `. v/bin/activate`
 
 Make and Run:
+
 `make`
+
 `./max_pal_decomp_gaps_errors.x -d -p -L 11 -G 2 -E 3 < example.input | python drawDecomposition.py -d -E 3`
