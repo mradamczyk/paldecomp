@@ -1,9 +1,11 @@
 /* Implementation of a solution to
    the Generalized Palindromic Decomposition with Gaps problem
    in O(n log n * g) time and O(n * g) space complexity
+   using method based on Fici et al. palindromic factorization solution
    */
 
 #include<algorithm>
+#include<stdexcept>
 #include<functional>
 #include<iostream>
 #include<vector>
@@ -49,7 +51,7 @@ class PalindromicDecompositionWithGapsFastImpl : public PalindromicDecomposition
     }
 
     void printDecomposition() {
-        // TODO
+        throw std::logic_error("Unimplemented method");
     }
 
     private:

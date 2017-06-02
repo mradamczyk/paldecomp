@@ -41,6 +41,15 @@ pal_decomp_gaps-s-test: gen-test
 		diff fast.out brute.out; \
 	done;
 
+pal_decomp_gaps-s-big-test: gen-test
+	python gen_random_dna.py 10000 200 > dna/random.in
+	for i in $$(seq 1 10); do \
+		echo "G: " $$i; \
+		./pal_decomp_gaps.x -L 7 -G $$i -e < dna/random.in > eertree.out 2>/dev/null; \
+		./pal_decomp_gaps.x -L 7 -G $$i < dna/random.in > fast.out 2>/dev/null; \
+		diff fast.out eertree.out; \
+	done;
+
 pal_decomp_gaps-d-test: gen-test
 	for i in $$(seq 1 10); do echo $$i; python gen_dna.py $$i > dna/$$i.in; done
 	for i in $$(seq 1 10); do \
@@ -48,16 +57,20 @@ pal_decomp_gaps-d-test: gen-test
 		for g in $$(seq 1 10); do \
 			echo "G: " $$g; \
 			./pal_decomp_gaps.x -d -L 2 -G $$g -b < dna/$$i.in > brute.out 2>/dev/null; \
+			./pal_decomp_gaps.x -d -L 2 -G $$g -e < dna/$$i.in > eertree.out 2>/dev/null; \
 			./pal_decomp_gaps.x -d -L 2 -G $$g < dna/$$i.in > fast.out 2>/dev/null; \
 			diff fast.out brute.out; \
+			diff eertree.out brute.out; \
 		done;\
 	done;
 	python gen_random_dna.py 100000 30 > dna/random.in
 	for i in $$(seq 1 10); do \
 		echo "G: " $$i; \
 		./pal_decomp_gaps.x -d -L 4 -G $$i -b < dna/random.in > brute.out 2>/dev/null; \
+		./pal_decomp_gaps.x -d -L 4 -G $$i -e < dna/random.in > eertree.out 2>/dev/null; \
 		./pal_decomp_gaps.x -d -L 4 -G $$i < dna/random.in > fast.out 2>/dev/null; \
 		diff fast.out brute.out; \
+		diff eertree.out brute.out; \
 	done;
 
 max_pal_decomp_gaps_errors-s-test: gen-test
@@ -94,7 +107,7 @@ max_pal_decomp_gaps_errors-d-test: gen-test
 
 .PHONY: clean
 clean:
-	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna fast.out brute.out
+	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna fast.out brute.out eertree.out
 
 deepclean:
 	clean
