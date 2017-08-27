@@ -1,3 +1,5 @@
 a.out
 include/
 lib/
+v/
+.DS_Store
