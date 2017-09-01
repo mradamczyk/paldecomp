@@ -53,6 +53,8 @@ def decomposition2graph(f, decomposition, delta):
     last_x, last_y = 0, 0
     for w in words:
         if w[0] == '[':
+            if len(w) == 2:
+                continue
             last_x += (int(len(w)/5))
             g.add_node(cnt, label=w[1:-1], pos=[last_x, last_y], shape='box', style='filled', fillcolor='lightgrey')
             g.add_edge(cnt-1, cnt, style='bold')
