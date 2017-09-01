@@ -25,19 +25,22 @@ using std::function;
 int main(int argc, char **argv) {
     int opt, brute, dna, minLength = 1, maxGapsNum = 0, print = 0;
     brute = dna = 0;
-    fprintf(stderr, "usage is \n"
-            "-b : for running brute \n"
-            "-d : for DNA complement palindromes [default: standard palindromes]\n"
-            "-p : print decomposition (works only with -b)\n"
-            "-L X: set minimum palindrome length to X [default: 1]\n"
-            "-G X: set maximum allowed number of gaps to X [default: 0]\n");
-    while ((opt = getopt(argc,argv,"bdpL:G:")) != EOF) {
+    while ((opt = getopt(argc,argv,"bdhpL:G:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
             case 'p': print = 1; break;
             case 'L': minLength = atoi(optarg); break;
             case 'G': maxGapsNum = atoi(optarg); break;
+            case 'h':
+            default:
+                fprintf(stderr, "usage is \n"
+                        "-b : for running brute \n"
+                        "-d : for DNA complement palindromes [default: standard palindromes]\n"
+                        "-p : print decomposition (works only with -b)\n"
+                        "-L X: set minimum palindrome length to X [default: 1]\n"
+                        "-G X: set maximum allowed number of gaps to X [default: 0]\n");
+                exit(0);
         }
     }
     function<char(char)> f = dna ? relation::dnaComplementarity : relation::equality;

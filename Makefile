@@ -107,7 +107,7 @@ max_pal_decomp_gaps_errors-d-test: gen-test
 
 .PHONY: clean
 clean:
-	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna fast.out brute.out eertree.out
+	rm -rf *~ $(BUILD_DIR) $(EXECUTABLES) *.d dna fast.out brute.out eertree.out *.gv *.gv.pdf
 
 deepclean:
 	clean

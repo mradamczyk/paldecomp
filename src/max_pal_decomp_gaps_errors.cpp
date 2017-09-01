@@ -19,23 +19,27 @@ using std::function;
 int main(int argc, char **argv) {
     int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGapsNum = 0, print = 0, brute = 0;
     string errorsMetric = "edit"; // or "ham"
-    fprintf(stderr, "usage is \n"
-            "-b : for running brute\n"
-            "-h : for running with Hamming distance [default: edit distance]\n"
-            "-d : for DNA complement palindromes [default: standard palindromes]\n"
-            "-p : print decomposition\n"
-            "-L X: set minimum palindrome length to X [default: 1]\n"
-            "-G X: set number of allowed gaps to X [default: 0]\n"
-            "-E x: set number of allowed errors to X [default: 0]\n");
-    while ((opt = getopt(argc,argv,"bhdpL:G:E:")) != EOF) {
+    while ((opt = getopt(argc,argv,"bHhdpL:G:E:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
-            case 'h': errorsMetric = "ham"; break;
             case 'd': dna = 1; break;
             case 'p': print = 1; break;
+            case 'H': errorsMetric = "ham"; break;
             case 'L': minLength = atoi(optarg); break;
             case 'G': maxGapsNum = atoi(optarg); break;
             case 'E': errorsAllowed = atoi(optarg); break;
+            case 'h':
+            default:
+                fprintf(stderr, "usage is \n"
+                    "-b : for running brute\n"
+                    "-d : for DNA complement palindromes [default: standard palindromes]\n"
+                    "-h : for help\n"
+                    "-p : print decomposition\n"
+                    "-H : for running with Hamming distance [default: edit distance]\n"
+                    "-L X: set minimum palindrome length to X [default: 1]\n"
+                    "-G X: set number of allowed gaps to X [default: 0]\n"
+                    "-E x: set number of allowed errors to X [default: 0]\n");
+                exit(0);
         }
     }
 

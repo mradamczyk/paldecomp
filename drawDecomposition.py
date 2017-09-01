@@ -128,7 +128,7 @@ def decomposition2graph(f, decomposition, delta):
     return g
 
 def drawGraph(g, fileName):
-    G = gv.Graph(engine='neato', format='svg')
+    G = gv.Graph(engine='neato', format='pdf')
     G.graph_attr['size'] = '10'
     for (x, y, values) in g.edges(data=True):
         if x != 0 and y != 0:
@@ -142,7 +142,7 @@ def drawGraph(g, fileName):
             else:
                 G.node("%d" % node, values["label"], fontsize='40', style='filled, bold', fillcolor=values.get('fillcolor', 'white'), color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
 
-    G.render(fileName)
+    G.render(fileName + '.gv')
 
 def main(argv):
     dna, delta, fileName = False,  0, 'decomposition'
