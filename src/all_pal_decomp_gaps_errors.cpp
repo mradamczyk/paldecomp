@@ -7,8 +7,8 @@
 #include<unistd.h>
 #include "relations.hpp"
 #include "MaximalGPalindromes/MaximalGPalindromes.hpp"
-#include "DecompositionWithGaps/GenericDecompositionWithGapsFastImpl.hpp"
-#include "DecompositionWithGaps/GenericDecompositionWithGapsBruteImpl.hpp"
+#include "DecompositionWithGaps/Generic/GenericDecompositionWithGapsFastImpl.hpp"
+#include "DecompositionWithGaps/Generic/GenericDecompositionWithGapsBruteImpl.hpp"
 
 using std::pair;
 using std::make_pair;

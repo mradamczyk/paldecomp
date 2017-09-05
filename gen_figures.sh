@@ -4,3 +4,5 @@
 
 ./max_pal_decomp_gaps_errors.x -d -L 5 -G 2 -E 2 -p < examples/ab286863.in | python drawDecomposition.py -d -E 2 -f not-maximal-max
 ./all_pal_decomp_gaps_errors.x -d -L 5 -G 2 -E 2 -p < examples/ab286863.in | python drawDecomposition.py -d -E 2 -f not-maximal-all
+
+python ./drawDecomposition.py -d -E 1 < examples/vis-ex.in -f vis-ex

@@ -7,8 +7,8 @@
 #include<tuple>
 #include<unistd.h>
 #include "relations.hpp"
-#include "DecompositionWithGaps/PalindromicDecompositionWithGapsBruteImpl.hpp"
-#include "DecompositionWithGaps/PalindromicDecompositionWithGapsFastImpl.hpp"
+#include "DecompositionWithGaps/Palindromic/PalindromicDecompositionWithGapsBruteImpl.hpp"
+#include "DecompositionWithGaps/Palindromic/PalindromicDecompositionWithGapsFastImpl.hpp"
 
 using triple = std::tuple<int, int, int>;
 using std::get;
