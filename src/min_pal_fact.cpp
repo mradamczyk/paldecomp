@@ -15,7 +15,9 @@ int main(int argc, char **argv) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
-            case 'h': fprintf(stderr, "usage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -h : help\n"); exit;
+            case 'h':
+            default:
+                fprintf(stderr, "usage is \n -b : for running brute \n -d : for DNA complement palindromes [default: standard palindromes]\n -h : help\n"); exit(0);
         }
     }
 

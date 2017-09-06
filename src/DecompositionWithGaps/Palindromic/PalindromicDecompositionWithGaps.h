@@ -4,7 +4,7 @@
 #include<functional>
 #include<string>
 #include<vector>
-#include "DecompositionWithGaps.h"
+#include "../DecompositionWithGaps.h"
 
 class PalindromicDecompositionWithGaps : public DecompositionWithGaps {
     public:

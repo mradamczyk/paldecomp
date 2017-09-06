@@ -53,9 +53,11 @@ def decomposition2graph(f, decomposition, delta):
     last_x, last_y = 0, 0
     for w in words:
         if w[0] == '[':
+            if len(w) == 2:
+                continue
             last_x += (int(len(w)/5))
-            g.add_node(cnt, label=w[1:-1], pos=[last_x, last_y], shape='box', style='bold', color='gray')
-            g.add_edge(cnt-1, cnt, style='solid')
+            g.add_node(cnt, label=w[1:-1], pos=[last_x, last_y], shape='box', style='filled', fillcolor='lightgrey')
+            g.add_edge(cnt-1, cnt, style='bold')
             cnt += 1
             last_x += 1 + (int(len(w)/5))
         else:
@@ -73,8 +75,11 @@ def decomposition2graph(f, decomposition, delta):
                 if i == 0 and not deletions1 and not deletions2:
                     continue
 
-                g.add_node(cnt, label=let1, pos=[last_x, last_y], color='blue' if swap1 else 'black')
-                g.add_edge(cnt-1, cnt, style='solid')
+                if swap1:
+                    g.add_node(cnt, label=let1, pos=[last_x, last_y], color='blue', fillcolor='lightblue')
+                else:
+                    g.add_node(cnt, label=let1, pos=[last_x, last_y], color='black')
+                g.add_edge(cnt-1, cnt, style='bold')
                 cnt += 1
 
                 initial_y = last_y
@@ -83,8 +88,8 @@ def decomposition2graph(f, decomposition, delta):
                     last_x += 1 if i == k-1 else (0 if i == 0 else -1)
                     last_y += 1 if i != 0 else 0
                     for let in deletions1:
-                        g.add_node(cnt, label=let, pos=[last_x, last_y], color='red')
-                        g.add_edge(cnt-1, cnt, style='solid')
+                        g.add_node(cnt, label=let, pos=[last_x, last_y], fillcolor='pink', color='red')
+                        g.add_edge(cnt-1, cnt, style='bold')
                         last_y += 2
                         cnt += 1
                     last_y += 1 if i != 0 else 2
@@ -101,8 +106,11 @@ def decomposition2graph(f, decomposition, delta):
                     last_y = r_y
                     continue
 
-                g.add_node(cnt, label=let2, pos=[last_x, r_y], color='blue' if swap2 else 'black')
-                g.add_edge(cnt-1, cnt, style='solid')
+                if swap2:
+                    g.add_node(cnt, label=let2, pos=[last_x, r_y], color='blue', fillcolor='lightblue')
+                else:
+                    g.add_node(cnt, label=let2, pos=[last_x, r_y], color='black')
+                g.add_edge(cnt-1, cnt, style='bold')
                 if r_id != cnt-1 and i != k-1:
                     g.add_edge(r_id, cnt, style='dotted')
                 cnt += 1
@@ -112,8 +120,8 @@ def decomposition2graph(f, decomposition, delta):
                     last_x += 1 if i != k-2 else 0
                     last_y -= 1 if i != k-2 else 2
                     for let in deletions2:
-                        g.add_node(cnt, label=let, pos=[last_x, last_y], color='red')
-                        g.add_edge(cnt-1, cnt, style='solid')
+                        g.add_node(cnt, label=let, pos=[last_x, last_y], fillcolor='pink', color='red')
+                        g.add_edge(cnt-1, cnt, style='bold')
                         last_y -= 2
                         cnt += 1
                     last_y -= 1 if i != k-2 else 0
@@ -122,7 +130,7 @@ def decomposition2graph(f, decomposition, delta):
     return g
 
 def drawGraph(g, fileName):
-    G = gv.Graph(engine='neato', format='svg')
+    G = gv.Graph(engine='neato', format='pdf')
     G.graph_attr['size'] = '10'
     for (x, y, values) in g.edges(data=True):
         if x != 0 and y != 0:
@@ -134,9 +142,9 @@ def drawGraph(g, fileName):
             if values["label"] == '#':
                 G.node("%d" % node, fontsize='1', style='invisible', pos="%d,%d!" % (x, y), shape='point')
             else:
-                G.node("%d" % node, values["label"], fontsize='40', style='filled, bold', fillcolor='white', color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
+                G.node("%d" % node, values["label"], fontsize='40', style='filled, bold', fillcolor=values.get('fillcolor', 'white'), color=values.get('color', 'black'), pos="%d,%d!" % (x, y), shape=values.get('shape', 'circle'))
 
-    G.render(fileName)
+    G.render(fileName + '.gv')
 
 def main(argv):
     dna, delta, fileName = False,  0, 'decomposition'

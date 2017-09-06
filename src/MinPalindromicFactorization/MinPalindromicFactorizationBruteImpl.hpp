@@ -1,4 +1,4 @@
-// Implementations of https://arxiv.org/pdf/1403.2431.pdf
+// Naive O(n^2) implementation of a Simple Quadratic Algorithm presented in https://arxiv.org/pdf/1403.2431.pdf
 
 #include<functional>
 #include<string>

@@ -5,7 +5,7 @@
 #include<vector>
 #include<string>
 #include<unistd.h>
-#include "DecompositionWithGaps.h"
+#include "../DecompositionWithGaps.h"
 
 class GenericDecompositionWithGaps : public DecompositionWithGaps {
     public:

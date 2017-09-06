@@ -19,7 +19,7 @@ using std::function;
 int main(int argc, char **argv) {
     int opt, dna = 0, errorsAllowed = 0, minLength = 1, maxGapsNum = 0, print = 0, brute = 0;
     string errorsMetric = "edit"; // or "ham"
-    while ((opt = getopt(argc,argv,"bHhdpL:G:E:")) != EOF) {
+    while ((opt = getopt(argc,argv,"bhHdpL:G:E:")) != EOF) {
         switch(opt) {
             case 'b': brute = 1; break;
             case 'd': dna = 1; break;
@@ -31,14 +31,14 @@ int main(int argc, char **argv) {
             case 'h':
             default:
                 fprintf(stderr, "usage is \n"
-                    "-b : for running brute\n"
-                    "-d : for DNA complement palindromes [default: standard palindromes]\n"
-                    "-h : for help\n"
-                    "-p : print decomposition\n"
-                    "-H : for running with Hamming distance [default: edit distance]\n"
-                    "-L X: set minimum palindrome length to X [default: 1]\n"
-                    "-G X: set number of allowed gaps to X [default: 0]\n"
-                    "-E x: set number of allowed errors to X [default: 0]\n");
+                        "-b : for running brute\n"
+                        "-h : for help\n"
+                        "-d : for DNA complement palindromes [default: standard palindromes]\n"
+                        "-p : print decomposition\n"
+                        "-E x: set number of allowed errors to X [default: 0]\n"
+                        "-H : for running with Hamming distance [default: edit distance]\n"
+                        "-G X: set number of allowed gaps to X [default: 0]\n"
+                        "-L X: set minimum palindrome length to X [default: 1]\n");
                 exit(0);
         }
     }
@@ -51,26 +51,28 @@ int main(int argc, char **argv) {
 
         MaximalGPalindromes palindromesFinder(t, f);
 
-        vector< pair<int,int> > palindromes, filteredPalindromes;
+        vector< pair<int,int> > palindromes, allGPalindromes;
         if (errorsMetric == "edit") {
             palindromes = palindromesFinder.allMaximalEditDistGPalindromes(errorsAllowed);
         } else {
             palindromes = palindromesFinder.allMaximalHammingDistGPalindromes(errorsAllowed);
         }
 
-        // filter palindromes on length >= minLength
-        std::copy_if(palindromes.begin(), palindromes.end(),
-                std::back_inserter(filteredPalindromes),
-                [minLength](const pair<int, int> &p) {
-                    return p.second - p.first + 1 >= minLength;
-                }
-        );
+        for (const pair<int, int> &p: palindromes) {
+            int begin = p.first, end = p.second;
+            while (end - begin + 1 >= minLength) {
+                allGPalindromes.push_back(make_pair(begin, end));
+                begin++;
+                end--;
+            }
+            // TODO: this is probably not all yet, let's see if we can find an missing
+        }
 
         GenericDecompositionWithGaps *solver = nullptr;
         if (brute) {
-            solver = new GenericDecompositionWithGapsBruteImpl(t, filteredPalindromes, maxGapsNum);
+            solver = new GenericDecompositionWithGapsBruteImpl(t, allGPalindromes, maxGapsNum);
         } else {
-            solver = new GenericDecompositionWithGapsFastImpl(t, filteredPalindromes, maxGapsNum);
+            solver = new GenericDecompositionWithGapsFastImpl(t, allGPalindromes, maxGapsNum);
         }
 
         int k = solver->run();
