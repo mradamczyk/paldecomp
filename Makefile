@@ -50,6 +50,29 @@ pal_decomp_gaps-s-big-test: gen-test
 		diff fast.out eertree.out; \
 	done;
 
+pal_decomp_gaps-time: gen-test
+	python gen_random_dna.py 1000000 10 > dna/random.in
+	echo "G: 3";
+	time ./pal_decomp_gaps.x -L 7 -G 3 -e < dna/random.in > eertree.out 2>/dev/null;
+	time ./pal_decomp_gaps.x -L 7 -G 3 < dna/random.in > fast.out 2>/dev/null;
+	diff fast.out eertree.out;
+	python gen_random_dna.py 1000000 10 > dna/random.in
+	echo "G: 30";
+	time ./pal_decomp_gaps.x -L 7 -G 30 -e < dna/random.in > eertree.out 2>/dev/null;
+	time ./pal_decomp_gaps.x -L 7 -G 30 < dna/random.in > fast.out 2>/dev/null;
+	diff fast.out eertree.out;
+	python gen_random_dna.py 300000 10 > dna/random.in
+	echo "G: 300";
+	time ./pal_decomp_gaps.x -L 7 -G 300 -e < dna/random.in > eertree.out 2>/dev/null;
+	time ./pal_decomp_gaps.x -L 7 -G 300 < dna/random.in > fast.out 2>/dev/null;
+	diff fast.out eertree.out;
+	python gen_random_dna.py 30000 10 > dna/random.in
+	echo "G: 3000";
+	time ./pal_decomp_gaps.x -L 7 -G 3000 -e < dna/random.in > eertree.out 2>/dev/null;
+	time ./pal_decomp_gaps.x -L 7 -G 3000 < dna/random.in > fast.out 2>/dev/null;
+	diff fast.out eertree.out;
+
+
 pal_decomp_gaps-d-test: gen-test
 	for i in $$(seq 1 10); do echo $$i; python gen_dna.py $$i > dna/$$i.in; done
 	for i in $$(seq 1 10); do \
