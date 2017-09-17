@@ -1,0 +1,46 @@
+digraph G {
+    size="6,6" ;
+    splines=true ; 
+    0:sw -> bb:nw [label="  b  "] ;
+
+    -1 -> a [label="  a  "] ;
+    -1 -> b [label="  b  "] ;
+    -1 -> c [label="  c   "] ;
+
+    b -> cbc [label="  c  "] ;
+    c -> bcb [label="  b  "] ;
+    cbc -> bcbcb [label="  b  "] ; 
+    bcbcb -> bbcbcbb [label="  b  "] ;
+    bbcbcbb-> abbcbcbba [label="  a  "] ;
+
+    0 -> -1 [style="dashed", color="blue", constraint=false] ;
+    -1:ne -> -1:nw [style="dashed", color="blue", constraint=false] ;
+    a -> 0 [style="dashed", color="blue", constraint=false] ;
+    b -> 0 [style="dashed", color="blue", constraint=false] ; 
+    c -> 0 [style="dashed", color="blue", constraint=false] ;
+    bb -> b [style="dashed", color="blue", constraint=false] ;
+    bcb -> b [style="dashed", color="blue", constraint=false] ;
+    cbc -> c [style="dashed", color="blue", constraint=false] ; 
+    bcbcb -> bcb [style="dashed", color="blue", constraint=false] ;
+    bbcbcbb -> bb [style="dashed", color="blue", constraint=false] ;
+    abbcbcbba -> a [style="dashed", color="blue", constraint=false] ;
+
+    bb -> 0 [style="dotted", color="red", dir=forward] ;
+    bcbcb:nw -> b [style="dotted", color="red"] ;
+
+    
+    -1 [ pos = "2,6!"] ;
+    0 [ pos = "0,6!"] ;
+    a [ pos = "1,5!"] ;
+    b [ pos = "2,5!"] ;
+    c [ pos = "3,5!"] ;
+    bb [ pos = "0,4!"] ;
+    cbc [ pos = "2,3!"] ;
+    bcb [ pos = "3,3!"] ;
+    bcbcb [ pos = "2,2!"] ;
+    bbcbcbb [ pos = "2,1!"] ;
+    abbcbcbba [ pos = "2,0!"] ;
+
+    sep=0.3 ; 
+    nodesep=0.3 ;
+}

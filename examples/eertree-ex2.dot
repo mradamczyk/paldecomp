@@ -1,0 +1,44 @@
+digraph G {
+    splines=true ; 
+    
+    0 -> GC [label=" C "]
+    0 -> CG [label=" G "]
+    0 -> TA [label="   A     "]
+    GC -> CGCG [label=" G "]
+    CGCG -> ACGCGT [label=" T "]
+    TA -> GTAC [label=" C "]
+    TA -> CTAG [label=" G   "]
+    CTAG -> ACTAGT [label=" T "]
+    
+    
+    GC:ne -> 0 [style="dashed", color="blue", constraint=false] ;
+    CG:n -> 0 [style="dashed", color="blue", constraint=false] ;
+    TA:n -> 0 [style="dashed", color="blue", constraint=false] ; 
+    GTAC:n -> 0 [style="dashed", color="blue", constraint=false] ;
+    CTAG -> 0 [style="dashed", color="blue", constraint=false] ;
+    ACGCGT:ne -> 0 [style="dashed", color="blue", constraint=false] ;
+    ACTAGT -> 0 [style="dashed", color="blue", constraint=false] ; 
+    CGCG -> CG [style="dashed", color="blue", constraint=false] ;
+
+    
+    0 -> -1 [style="dashed", color="blue", constraint=false] ;
+    -1:ne -> -1:nw [style="dashed", color="blue", constraint=false] ;
+
+    CGCG:nw -> 0 [style="dotted", color="red", constraint=false] ;
+
+
+    0 [ pos="1,4!" ];
+    -1 [ pos="2,4!" ];
+    CG [ pos="0,2!" ];
+    GC [ pos="1,2!" ];
+    TA [ pos="4,2!" ];
+    CGCG [ pos="1,1!" ];
+    GTAC [ pos="3,1!" ];
+    CTAG [ pos="5,1!" ];
+    ACGCGT [ pos="1,0!" ];
+    ACTAGT [ pos="4,0!" ];
+
+    sep=0.3 ; 
+    nodesep=0.3 ;
+
+}

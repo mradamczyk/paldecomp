@@ -10,7 +10,7 @@ def dnaComplementarity(x):
             'T': 'A'
             }.get(x, x)
 
-def check(f, word, i, j, delta, positions):
+def check(f, word, i, j, delta, positions, mode):
     if delta < 0:
         return None
     if i > j:
@@ -18,21 +18,26 @@ def check(f, word, i, j, delta, positions):
         return [(word[l], any(p == l for p in positions), any(p == l+len(word) for p in positions))
                 for l in xrange(len(word))]
     end = None
+
     if word[i] == f(word[j]):
-        end = check(f, word, i+1, j-1, delta, positions)
+        end = check(f, word, i+1, j-1, delta, positions, mode)
     if end is not None:
         return end
-    end = check(f, word, i+1, j, delta-1, positions + [i])
-    if end is not None:
-        return end
-    end = check(f, word, i, j-1, delta-1, positions + [j])
-    if end is not None:
-        return end
-    end = check(f, word, i+1, j-1, delta-1, positions + [i+len(word), j+len(word)])
+
+    if mode == 'edit':
+        end = check(f, word, i+1, j, delta-1, positions + [i], mode)
+        if end is not None:
+            return end
+
+        end = check(f, word, i, j-1, delta-1, positions + [j], mode)
+        if end is not None:
+            return end
+
+    end = check(f, word, i+1, j-1, delta-1, positions + [i+len(word), j+len(word)], mode)
     return end
 
-def word2nodes(f, word, delta):
-    letters = check(f, word, 0, len(word)-1, delta, [])
+def word2nodes(f, word, delta, mode):
+    letters = check(f, word, 0, len(word)-1, delta, [], mode)
     nodes = [('#', False, [])]
     last = nodes[-1]
     for (let, deletion, swap) in letters:
@@ -44,7 +49,7 @@ def word2nodes(f, word, delta):
     nodes.append(('#', False, []))
     return nodes
 
-def decomposition2graph(f, decomposition, delta):
+def decomposition2graph(f, decomposition, delta, mode):
     g = nx.Graph()
     words = decomposition.split(' ')
     #words = ['a','b','c']
@@ -52,6 +57,8 @@ def decomposition2graph(f, decomposition, delta):
     g.add_node(0, label='#', pos=[0, 0], color="white")
     last_x, last_y = 0, 0
     for w in words:
+        if len(w) == 0:
+            continue
         if w[0] == '[':
             if len(w) == 2:
                 continue
@@ -61,8 +68,9 @@ def decomposition2graph(f, decomposition, delta):
             cnt += 1
             last_x += 1 + (int(len(w)/5))
         else:
-            nodes = word2nodes(f, w, delta)
+            nodes = word2nodes(f, w, delta, mode)
             k = len(nodes) / 2
+            odd = len(nodes) % 2
             temp = []
             last_x += 1
             for i in xrange(k):
@@ -96,10 +104,19 @@ def decomposition2graph(f, decomposition, delta):
                     last_x -= 1 if i == k-1 else (0 if i == 0 else -1)
                 last_y = initial_y + mx * 2 - (0 if i != 0 or deletions1 or deletions2 else 2)
 
-            last_x += 2
+            if odd == 0:
+                last_x += 2
+            else:
+                last_x +=1
+                last_y += 1 if last_y != 0 else 0
+                g.add_node(cnt, label=nodes[k][0], pos=[last_x, last_y], color='black')
+                g.add_edge(cnt-1, cnt, style='bold')
+                cnt += 1
+                last_y -= 1 if last_y != 1 else 0
+                last_x += 1
 
             for i in xrange(k):
-                (let2, swap2, deletions2) = nodes[i+k]
+                (let2, swap2, deletions2) = nodes[i+odd+k]
                 (r_id, r_y) = temp.pop()
 
                 if i == k-1 and len(nodes[-2][2]) >= len(nodes[0][2]):
@@ -147,15 +164,17 @@ def drawGraph(g, fileName):
     G.render(fileName + '.gv')
 
 def main(argv):
-    dna, delta, fileName = False,  0, 'decomposition'
+    dna, delta, fileName, mode = False,  0, 'decomposition', 'edit'
     try:
-        opts, args = getopt.getopt(argv,"dE:f:")
+        opts, args = getopt.getopt(argv,"dHE:f:")
     except getopt.GetoptError:
-        print ('drawDecomposition.py [-d] [-E N] [-f fileName]')
+        print ('drawDecomposition.py [-d] [-H] [-E N] [-f fileName]')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-d':
             dna = True
+        elif opt == '-H':
+            mode = 'hamming'
         elif opt == '-E':
             delta = int(arg)
         elif opt == '-f':
@@ -163,7 +182,7 @@ def main(argv):
 
     sys.stdin.readline()
     decomp = sys.stdin.readline().strip()
-    g = decomposition2graph(dnaComplementarity if dna else (lambda x: x), decomp, delta)
+    g = decomposition2graph(dnaComplementarity if dna else (lambda x: x), decomp, delta, mode)
     drawGraph(g, fileName)
 
 if __name__ == "__main__":
