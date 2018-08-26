@@ -9,3 +9,11 @@ python ./drawDecomposition.py -d -E 1 < examples/vis-ex.in -f vis-ex
 
 cat examples/eertree-ex2.dot |  neato -Tpdf > eertree-ex2.pdf
 cat examples/eertree-ex1.dot |  neato -Tpdf > eertree-ex1.pdf
+cat examples/eertree-ex1-step0.dot |  neato -Tpdf > eertree-ex1-step0.pdf
+cat examples/eertree-ex1-step1.dot |  neato -Tpdf > eertree-ex1-step1.pdf
+cat examples/eertree-ex1-step2.dot |  neato -Tpdf > eertree-ex1-step2.pdf
+cat examples/eertree-ex1-step3.dot |  neato -Tpdf > eertree-ex1-step3.pdf
+cat examples/eertree-ex1-step4.dot |  neato -Tpdf > eertree-ex1-step4.pdf
+cat examples/eertree-ex1-step5.dot |  neato -Tpdf > eertree-ex1-step5.pdf
+cat examples/eertree-ex1-step6.dot |  neato -Tpdf > eertree-ex1-step6.pdf
+cat examples/eertree-ex1-step7.dot |  neato -Tpdf > eertree-ex1-step7.pdf
